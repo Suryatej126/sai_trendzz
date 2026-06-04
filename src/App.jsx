@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 // Import our shared navigation components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -68,6 +68,92 @@ function App() {
 
   // 7. State for transition loader (when opening product details)
   const [isNavigating, setIsNavigating] = useState(false);
+
+  // Ref to prevent history sync loops when back button is pressed
+  const isPopStateRef = useRef(false);
+
+  // History sync hook 1: Handle popstate events (e.g. back button clicks)
+  useEffect(() => {
+    const handlePopState = (event) => {
+      isPopStateRef.current = true;
+      
+      const params = new URLSearchParams(window.location.search);
+      const productQuery = params.get("product");
+      const pageQuery = params.get("page");
+      
+      setSelectedProductId(productQuery ? Number(productQuery) : null);
+      setCurrentPage(pageQuery || "home");
+      
+      setTimeout(() => {
+        isPopStateRef.current = false;
+      }, 50);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    
+    // Check initial URL parameters for deep links
+    const params = new URLSearchParams(window.location.search);
+    const productQuery = params.get("product");
+    const pageQuery = params.get("page");
+    
+    if (productQuery) {
+      setSelectedProductId(Number(productQuery));
+    }
+    if (pageQuery) {
+      setCurrentPage(pageQuery);
+    }
+    
+    // Set initial state
+    if (!window.history.state) {
+      window.history.replaceState({ 
+        page: pageQuery || "home", 
+        productId: productQuery ? Number(productQuery) : null,
+        deepLinked: true
+      }, "");
+    }
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
+  // History sync hook 2: Push new history states when React state changes (from user clicks)
+  useEffect(() => {
+    if (isPopStateRef.current) return;
+
+    const currentHistoryState = window.history.state;
+    const targetPage = currentPage;
+    const targetProductId = selectedProductId;
+
+    // Check if history state is already in sync to avoid duplicate pushes
+    if (currentHistoryState && 
+        currentHistoryState.page === targetPage && 
+        currentHistoryState.productId === targetProductId) {
+      return;
+    }
+
+    let newUrl = "/";
+    if (targetProductId !== null) {
+      newUrl = `?product=${targetProductId}`;
+    } else if (targetPage === "admin") {
+      newUrl = "?page=admin";
+    }
+
+    window.history.pushState({ page: targetPage, productId: targetProductId }, "", newUrl);
+  }, [currentPage, selectedProductId]);
+
+  // History sync hook 3: Smooth scroll-back effect when exiting product details page
+  useEffect(() => {
+    if (selectedProductId === null && currentPage !== "admin") {
+      // Small timeout to allow component rendering before scrolling
+      setTimeout(() => {
+        const element = document.getElementById(currentPage);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+  }, [selectedProductId]);
 
   // Synchronization Hooks
   useEffect(() => {
@@ -269,15 +355,18 @@ function App() {
       {isNavigating && (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/90 dark:bg-charcoal-700/90 backdrop-blur-md animate-fade-in transition-all duration-300">
           <div className="relative flex items-center justify-center">
-            {/* Custom spinner outer ring */}
-            <div className="w-20 h-20 border-2 border-gold-200/30 dark:border-gold-800/30 border-t-gold-500 dark:border-t-gold-400 rounded-full animate-spin" />
+            {/* Glowing golden backdrop */}
+            <div className="absolute w-32 h-32 bg-gold-400/20 dark:bg-gold-500/15 rounded-full blur-xl animate-pulse -z-10" />
             
-            {/* Center pulsing brand logo */}
-            <div className="absolute w-12 h-12 rounded-full overflow-hidden border border-gold-400 shadow-lg animate-pulse bg-white">
+            {/* Custom spinner outer ring */}
+            <div className="w-20 h-20 border-2 border-gold-200/30 dark:border-gold-800/30 border-t-gold-500 dark:border-t-gold-400 rounded-full animate-spin shadow-[0_0_15px_rgba(184,134,11,0.15)]" />
+            
+            {/* Center pulsing brand logo with a distinct gold glow */}
+            <div className="absolute w-12 h-12 rounded-full overflow-hidden border border-gold-400 shadow-[0_0_15px_rgba(184,134,11,0.45)] dark:shadow-[0_0_20px_rgba(211,178,102,0.55)] animate-pulse bg-white">
               <img src={logoImg} alt="Sai Trends Loader" className="w-full h-full object-cover scale-110" />
             </div>
           </div>
-          <p className="mt-4 text-xs font-display tracking-widest text-gold-600 dark:text-gold-450 uppercase font-bold animate-pulse">
+          <p className="mt-4 text-xs font-display tracking-widest text-gold-600 dark:text-gold-450 uppercase font-bold animate-pulse drop-shadow-[0_2px_8px_rgba(184,134,11,0.3)]">
             Sai Trends
           </p>
         </div>

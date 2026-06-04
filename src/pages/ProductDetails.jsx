@@ -83,9 +83,13 @@ Please confirm availability and dispatch timeline. Thank you!`;
 
   // Navigate back to the collection page
   const handleBack = () => {
-    setSelectedProductId(null);
-    setActivePage("collection");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (window.history.state && window.history.state.productId !== null && !window.history.state.deepLinked) {
+      window.history.back();
+    } else {
+      setSelectedProductId(null);
+      setActivePage("collection");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   return (
