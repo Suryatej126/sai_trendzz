@@ -48,6 +48,8 @@ export default function Admin({
   const [category, setCategory] = useState("Shirts");
   const [customCategory, setCustomCategory] = useState("");
   const [image, setImage] = useState("");
+  const [image2, setImage2] = useState("");
+  const [image3, setImage3] = useState("");
   const [description, setDescription] = useState("");
   const [tag, setTag] = useState("");
   const [featured, setFeatured] = useState(false);
@@ -171,6 +173,8 @@ export default function Admin({
     setCategory("Shirts");
     setCustomCategory("");
     setImage("");
+    setImage2("");
+    setImage3("");
     setDescription("");
     setTag("");
     setFeatured(false);
@@ -194,6 +198,8 @@ export default function Admin({
     }
     
     setImage(product.image);
+    setImage2(product.image2 || "");
+    setImage3(product.image3 || "");
     setDescription(product.description);
     setTag(product.tag || "");
     setFeatured(product.featured || false);
@@ -228,6 +234,8 @@ export default function Admin({
       category: finalCategory,
       sizes: selectedSizes,
       image: image.trim(),
+      image2: image2.trim() || null,
+      image3: image3.trim() || null,
       description: description.trim(),
       featured: featured,
       tag: tag.trim() || null
@@ -495,6 +503,33 @@ export default function Admin({
                     placeholder="Paste Unsplash image web address URL"
                     className="bg-white dark:bg-charcoal-600 border border-charcoal-100 dark:border-charcoal-500 text-charcoal-500 dark:text-white text-xs px-3 py-2 rounded-sm focus:outline-none focus:border-gold-500 dark:focus:border-gold-400"
                   />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col space-y-1">
+                    <label className="text-[10px] uppercase tracking-wider text-charcoal-400 font-bold">
+                      Additional Image 2 URL
+                    </label>
+                    <input
+                      type="text"
+                      value={image2}
+                      onChange={(e) => setImage2(e.target.value)}
+                      placeholder="Optional second photo URL"
+                      className="bg-white dark:bg-charcoal-600 border border-charcoal-100 dark:border-charcoal-500 text-charcoal-500 dark:text-white text-xs px-3 py-2 rounded-sm focus:outline-none focus:border-gold-500 dark:focus:border-gold-400"
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-1">
+                    <label className="text-[10px] uppercase tracking-wider text-charcoal-400 font-bold">
+                      Additional Image 3 URL
+                    </label>
+                    <input
+                      type="text"
+                      value={image3}
+                      onChange={(e) => setImage3(e.target.value)}
+                      placeholder="Optional third photo URL"
+                      className="bg-white dark:bg-charcoal-600 border border-charcoal-100 dark:border-charcoal-500 text-charcoal-500 dark:text-white text-xs px-3 py-2 rounded-sm focus:outline-none focus:border-gold-500 dark:focus:border-gold-400"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex flex-col space-y-1">
@@ -769,7 +804,7 @@ export default function Admin({
                     <tr className="border-b border-charcoal-100 dark:border-charcoal-600 text-[10px] uppercase tracking-wider text-charcoal-400 dark:text-charcoal-300 font-bold">
                       <th className="pb-3 w-16">Item</th>
                       <th className="pb-3 px-4">Title & Category</th>
-                      <th className="pb-3 text-right">Price</th>
+                      <th className="pb-3 text-right hidden sm:table-cell">Price</th>
                       <th className="pb-3 text-center hidden sm:table-cell">Status</th>
                       <th className="pb-3 text-center w-24">Actions</th>
                     </tr>
@@ -789,12 +824,17 @@ export default function Admin({
                         
                         <td className="py-4 px-4">
                           <p className="font-semibold text-charcoal-500 dark:text-white line-clamp-1">{product.name}</p>
-                          <span className="text-[9px] uppercase tracking-wider text-gold-600 font-bold">
-                            {product.category}
-                          </span>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                            <span className="text-[9px] uppercase tracking-wider text-gold-600 font-bold">
+                              {product.category}
+                            </span>
+                            <span className="text-[10px] font-bold text-charcoal-500 dark:text-charcoal-350 sm:hidden">
+                              • {formatPrice(product.price)}
+                            </span>
+                          </div>
                         </td>
                         
-                        <td className="py-4 text-right">
+                        <td className="py-4 text-right hidden sm:table-cell">
                           <p className="font-bold">{formatPrice(product.price)}</p>
                           {product.originalPrice && (
                             <p className="text-[10px] text-charcoal-300 line-through">

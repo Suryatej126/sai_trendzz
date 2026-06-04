@@ -13,6 +13,8 @@ import Admin from "./pages/Admin";
 
 // Import the static mock database for initial load
 import { products as initialProducts } from "./data/products";
+// Import brand logo image for the transition loader
+import logoImg from "./assets/image.png";
 
 /**
  * Main App Component
@@ -63,6 +65,9 @@ function App() {
     const saved = localStorage.getItem("sai_trends_lookbook");
     return saved ? JSON.parse(saved) : defaultLookbook;
   });
+
+  // 7. State for transition loader (when opening product details)
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // Synchronization Hooks
   useEffect(() => {
@@ -150,10 +155,24 @@ function App() {
     localStorage.setItem("sai_trends_admin_passcode", newPasscode);
   };
 
-  // Helper to view a specific product's details
+  // Helper to view a specific product's details (with randomized loader delay of 0.8s)
   const handleSelectProduct = (id) => {
-    setSelectedProductId(id);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const showLoader = Math.random() < 0.6; // 60% chance of showing the loader
+    console.log("[Sai Trends Debug] handleSelectProduct clicked. ID:", id, "showLoader:", showLoader);
+    if (showLoader) {
+      setIsNavigating(true);
+      console.log("[Sai Trends Debug] Loader activated, setting timeout of 800ms");
+      setTimeout(() => {
+        console.log("[Sai Trends Debug] Timeout completed. Setting selectedProductId to:", id);
+        setSelectedProductId(id);
+        setIsNavigating(false);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 800); // 800ms loading delay (0.5s - 1s)
+    } else {
+      console.log("[Sai Trends Debug] Transitioning immediately. Setting selectedProductId to:", id);
+      setSelectedProductId(id);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   // Helper function to render active page content based on React state
@@ -245,6 +264,24 @@ function App() {
         setActivePage={setCurrentPage}
         setSelectedProductId={setSelectedProductId}
       />
+
+      {/* Full-Screen Page Transition Loader */}
+      {isNavigating && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/90 dark:bg-charcoal-700/90 backdrop-blur-md animate-fade-in transition-all duration-300">
+          <div className="relative flex items-center justify-center">
+            {/* Custom spinner outer ring */}
+            <div className="w-20 h-20 border-2 border-gold-200/30 dark:border-gold-800/30 border-t-gold-500 dark:border-t-gold-400 rounded-full animate-spin" />
+            
+            {/* Center pulsing brand logo */}
+            <div className="absolute w-12 h-12 rounded-full overflow-hidden border border-gold-400 shadow-lg animate-pulse bg-white">
+              <img src={logoImg} alt="Sai Trends Loader" className="w-full h-full object-cover scale-110" />
+            </div>
+          </div>
+          <p className="mt-4 text-xs font-display tracking-widest text-gold-600 dark:text-gold-450 uppercase font-bold animate-pulse">
+            Sai Trends
+          </p>
+        </div>
+      )}
     </div>
   );
 }

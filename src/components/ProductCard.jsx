@@ -21,11 +21,11 @@ export default function ProductCard({ product, onSelectProduct }) {
   return (
     <div 
       onClick={() => onSelectProduct(product.id)}
-      className="group cursor-pointer bg-white dark:bg-charcoal-800 flex flex-col h-full border border-charcoal-100 dark:border-charcoal-700 rounded-sm overflow-hidden hover:border-gold-300 hover:shadow-xl transition-all duration-300 relative"
+      className="group cursor-pointer bg-white dark:bg-charcoal-800 flex flex-col h-full border border-charcoal-100 dark:border-charcoal-700/80 rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.02)] hover:border-gold-400 dark:hover:border-gold-500 hover:shadow-[0_8px_30px_rgba(184,134,11,0.08)] dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-500 relative"
     >
       {/* Product Tag Badge (e.g., Best Seller, Signature Piece) */}
       {product.tag && (
-        <span className="absolute top-4 left-4 z-10 bg-charcoal-500 text-white text-[9px] uppercase tracking-wider font-semibold py-1 px-3 border border-gold-300/30">
+        <span className="absolute top-3 left-3 z-10 bg-charcoal-600/90 dark:bg-charcoal-900/90 text-white text-[8px] uppercase tracking-widest font-bold py-1 px-2.5 rounded-full border border-gold-400/30 backdrop-blur-sm shadow-sm">
           {product.tag}
         </span>
       )}

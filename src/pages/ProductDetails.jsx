@@ -15,11 +15,16 @@ export default function ProductDetails({ productId, products, setActivePage, set
 
   // State to track the size selected by the user (defaults to the first available size)
   const [selectedSize, setSelectedSize] = useState("");
+  // State to track active gallery image
+  const [activeImg, setActiveImg] = useState("");
 
-  // Set the default size when the product changes
+  // Set the default size and image when the product changes
   useEffect(() => {
-    if (product && product.sizes.length > 0) {
-      setSelectedSize(product.sizes[0]);
+    if (product) {
+      setActiveImg(product.image);
+      if (product.sizes.length > 0) {
+        setSelectedSize(product.sizes[0]);
+      }
     }
   }, [product]);
 
@@ -99,17 +104,64 @@ Please confirm availability and dispatch timeline. Thank you!`;
         {/* Product Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
  
-          {/* Left Column: Product Image */}
-          <div className="bg-charcoal-50 dark:bg-charcoal-800 border border-charcoal-100 dark:border-charcoal-600 rounded-sm overflow-hidden aspect-[3/4] max-w-lg mx-auto lg:mx-0 w-full relative">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-full object-cover object-center"
-            />
-            {product.tag && (
-              <span className="absolute top-6 left-6 bg-charcoal-500 text-white text-[10px] uppercase tracking-wider font-semibold py-1.5 px-4 border border-gold-300/30 shadow-md">
-                {product.tag}
-              </span>
+          {/* Left Column: Product Image Gallery */}
+          <div className="flex flex-col space-y-4 max-w-lg mx-auto lg:mx-0 w-full">
+            <div className="bg-charcoal-50 dark:bg-charcoal-800 border border-charcoal-100 dark:border-charcoal-600 rounded-sm overflow-hidden aspect-[3/4] w-full relative shadow-sm">
+              <img
+                src={activeImg || product.image}
+                alt={product.name}
+                className="w-full h-full object-cover object-center transition-all duration-300"
+              />
+              {product.tag && (
+                <span className="absolute top-4 left-4 bg-charcoal-500 text-white text-[10px] uppercase tracking-wider font-semibold py-1.5 px-4 border border-gold-300/30 shadow-md">
+                  {product.tag}
+                </span>
+              )}
+            </div>
+
+            {/* Gallery Thumbnails */}
+            {(product.image2 || product.image3) && (
+              <div className="flex gap-2.5 justify-center lg:justify-start overflow-x-auto py-1">
+                {/* Thumbnail 1 */}
+                <button
+                  onClick={() => setActiveImg(product.image)}
+                  className={`w-16 h-20 bg-charcoal-100 dark:bg-charcoal-800 border rounded-sm overflow-hidden transition-all duration-200 cursor-pointer flex-shrink-0 ${
+                    activeImg === product.image || !activeImg
+                      ? "border-gold-500 ring-1 ring-gold-500 scale-105"
+                      : "border-charcoal-100 dark:border-charcoal-600 opacity-70 hover:opacity-100"
+                  }`}
+                >
+                  <img src={product.image} alt="Main view" className="w-full h-full object-cover object-center" />
+                </button>
+
+                {/* Thumbnail 2 */}
+                {product.image2 && (
+                  <button
+                    onClick={() => setActiveImg(product.image2)}
+                    className={`w-16 h-20 bg-charcoal-100 dark:bg-charcoal-800 border rounded-sm overflow-hidden transition-all duration-200 cursor-pointer flex-shrink-0 ${
+                      activeImg === product.image2
+                        ? "border-gold-500 ring-1 ring-gold-500 scale-105"
+                        : "border-charcoal-100 dark:border-charcoal-600 opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <img src={product.image2} alt="Additional view 2" className="w-full h-full object-cover object-center" />
+                  </button>
+                )}
+
+                {/* Thumbnail 3 */}
+                {product.image3 && (
+                  <button
+                    onClick={() => setActiveImg(product.image3)}
+                    className={`w-16 h-20 bg-charcoal-100 dark:bg-charcoal-800 border rounded-sm overflow-hidden transition-all duration-200 cursor-pointer flex-shrink-0 ${
+                      activeImg === product.image3
+                        ? "border-gold-500 ring-1 ring-gold-500 scale-105"
+                        : "border-charcoal-100 dark:border-charcoal-600 opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <img src={product.image3} alt="Additional view 3" className="w-full h-full object-cover object-center" />
+                  </button>
+                )}
+              </div>
             )}
           </div>
  

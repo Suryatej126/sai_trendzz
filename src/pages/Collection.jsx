@@ -76,26 +76,26 @@ export default function Collection({ products, onSelectProduct }) {
         </div>
 
         {/* Filter Controls Bar */}
-        <div className="space-y-6 mb-12">
+        <div className="space-y-4 mb-8">
           
-          {/* Filter, Search & Sort Panel */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-charcoal-50 dark:bg-charcoal-800 p-4 border border-charcoal-100 dark:border-charcoal-600 rounded-sm transition-colors">
+          {/* Minimized Filter, Search & Sort Panel */}
+          <div className="flex flex-row items-center justify-between gap-4 border-b border-charcoal-100 dark:border-charcoal-600 pb-3">
             
             {/* Search Input bar */}
-            <div className="relative w-full md:max-w-xs">
+            <div className="relative flex-grow max-w-[200px]">
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Search catalog..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white dark:bg-charcoal-700 border border-charcoal-100 dark:border-charcoal-500 text-charcoal-500 dark:text-white placeholder-charcoal-300 dark:placeholder-charcoal-400 text-xs px-4 py-2.5 pl-9 rounded-sm focus:outline-none focus:border-gold-500 dark:focus:border-gold-400 font-sans"
+                className="w-full bg-transparent border-b border-charcoal-200 dark:border-charcoal-550 text-charcoal-500 dark:text-white placeholder-charcoal-300 dark:placeholder-charcoal-400 text-xs py-1.5 pl-6 focus:outline-none focus:border-gold-500 dark:focus:border-gold-400 font-sans"
               />
               {/* Search Icon */}
-              <span className="absolute left-3 top-3 text-xs text-charcoal-300 dark:text-charcoal-400">🔍</span>
+              <span className="absolute left-0 top-2 text-xs text-charcoal-350 dark:text-charcoal-400">🔍</span>
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-3 text-[10px] text-charcoal-400 dark:text-charcoal-300 hover:text-charcoal-500 dark:hover:text-white font-bold"
+                  className="absolute right-0 top-2 text-[10px] text-charcoal-400 dark:text-charcoal-300 hover:text-charcoal-500 dark:hover:text-white font-bold"
                 >
                   ✕
                 </button>
@@ -103,33 +103,30 @@ export default function Collection({ products, onSelectProduct }) {
             </div>
 
             {/* Sorting Dropdown list */}
-            <div className="flex items-center space-x-2 self-end md:self-auto">
-              <label htmlFor="sort" className="text-xs uppercase tracking-wider text-charcoal-400 dark:text-charcoal-300 font-bold">
-                Sort By:
-              </label>
+            <div className="flex items-center space-x-1.5 flex-shrink-0">
               <select
                 id="sort"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-white dark:bg-charcoal-700 border border-charcoal-100 dark:border-charcoal-500 text-charcoal-500 dark:text-white text-xs px-3 py-2 rounded-sm focus:outline-none focus:border-gold-500 dark:focus:border-gold-400 font-sans font-semibold cursor-pointer"
+                className="bg-transparent text-charcoal-400 dark:text-charcoal-200 text-xs focus:outline-none cursor-pointer font-sans font-semibold py-1 pr-4 border-b border-transparent hover:border-gold-500 transition-colors"
               >
-                <option value="default">Featured & Latest</option>
-                <option value="price-low-high">Price: Low to High</option>
-                <option value="price-high-low">Price: High to Low</option>
+                <option value="default" className="bg-white dark:bg-charcoal-700">Sort: Featured</option>
+                <option value="price-low-high" className="bg-white dark:bg-charcoal-700">Price: Low to High</option>
+                <option value="price-high-low" className="bg-white dark:bg-charcoal-700">Price: High to Low</option>
               </select>
             </div>
           </div>
 
-          {/* Category Pill Filters */}
-          <div className="flex flex-wrap gap-2 pb-2 overflow-x-auto border-b border-charcoal-50 dark:border-charcoal-700/50">
+          {/* Category Pill Filters - Horizontal Slider on Mobile */}
+          <div className="flex flex-row gap-1.5 pb-2 overflow-x-auto scrollbar-none whitespace-nowrap">
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`text-xs uppercase tracking-widest font-semibold px-5 py-2.5 border rounded-sm whitespace-nowrap transition-all duration-300 ease-out transform hover:scale-105 hover:-translate-y-0.5 active:scale-95 cursor-pointer ${
+                className={`text-[10px] uppercase tracking-wider font-semibold px-4 py-1.5 border rounded-full whitespace-nowrap transition-all duration-300 ease-out active:scale-95 cursor-pointer ${
                   selectedCategory === category
-                    ? "bg-gold-500 border-gold-500 text-white shadow-[0_4px_20px_rgba(184,134,11,0.4)]"
-                    : "bg-white dark:bg-charcoal-700 border-charcoal-100 dark:border-charcoal-600 text-charcoal-400 dark:text-charcoal-200 hover:border-gold-400 dark:hover:border-gold-400 hover:text-gold-500 dark:hover:text-gold-400 hover:shadow-[0_4px_15px_rgba(184,134,11,0.15)]"
+                    ? "bg-gold-500 border-gold-500 text-white shadow-sm"
+                    : "bg-transparent border-charcoal-200 dark:border-charcoal-600 text-charcoal-400 dark:text-charcoal-300 hover:border-gold-400 hover:text-gold-500"
                 }`}
               >
                 {category}
