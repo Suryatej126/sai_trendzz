@@ -59,10 +59,10 @@ export default function Admin({
   const [adminSearch, setAdminSearch] = useState("");
 
   // All sizes options for selection checklist
-  const allSizesList = ["S", "M", "L", "XL", "XXL", "30", "32", "34", "36"];
+  const allSizesList = ["S", "M", "L", "XL", "XXL", "30", "32", "34", "36", "UK 6", "UK 7", "UK 8", "UK 9", "UK 10", "UK 11"];
   
   // Available standard categories list
-  const defaultCategoriesList = ["Shirts", "T-Shirts", "Jackets", "Trousers", "Suits & Blazers", "Sweaters"];
+  const defaultCategoriesList = ["Shirts", "T-Shirts", "Jackets", "Trousers", "Suits & Blazers", "Sweaters", "Footwear"];
 
   // --- LOOKBOOK EDIT STATES ---
   const [lbHeading, setLbHeading] = useState(lookbook ? lookbook.heading : "");

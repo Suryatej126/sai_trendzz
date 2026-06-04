@@ -77,12 +77,23 @@ function App() {
     const handlePopState = (event) => {
       isPopStateRef.current = true;
       
-      const params = new URLSearchParams(window.location.search);
-      const productQuery = params.get("product");
-      const pageQuery = params.get("page");
+      const state = event.state;
+      let targetPage = "home";
+      let targetProductId = null;
       
-      setSelectedProductId(productQuery ? Number(productQuery) : null);
-      setCurrentPage(pageQuery || "home");
+      if (state) {
+        targetPage = state.page || "home";
+        targetProductId = state.productId !== undefined ? state.productId : null;
+      } else {
+        const params = new URLSearchParams(window.location.search);
+        const productQuery = params.get("product");
+        const pageQuery = params.get("page");
+        targetPage = pageQuery || "home";
+        targetProductId = productQuery ? Number(productQuery) : null;
+      }
+      
+      setSelectedProductId(targetProductId);
+      setCurrentPage(targetPage);
       
       setTimeout(() => {
         isPopStateRef.current = false;
@@ -117,7 +128,7 @@ function App() {
     };
   }, []);
 
-  // History sync hook 2: Push new history states when React state changes (from user clicks)
+  // History sync hook 2: Push/Replace history states when React state changes
   useEffect(() => {
     if (isPopStateRef.current) return;
 
@@ -125,7 +136,7 @@ function App() {
     const targetPage = currentPage;
     const targetProductId = selectedProductId;
 
-    // Check if history state is already in sync to avoid duplicate pushes
+    // Check if history state is already in sync to avoid duplicate updates
     if (currentHistoryState && 
         currentHistoryState.page === targetPage && 
         currentHistoryState.productId === targetProductId) {
@@ -139,7 +150,15 @@ function App() {
       newUrl = "?page=admin";
     }
 
-    window.history.pushState({ page: targetPage, productId: targetProductId }, "", newUrl);
+    // Push state when entering product details or admin portal.
+    // Replace state when scrolling storefront sections to keep history stack clean.
+    const shouldPush = (targetProductId !== null) || (targetPage === "admin");
+
+    if (shouldPush) {
+      window.history.pushState({ page: targetPage, productId: targetProductId }, "", newUrl);
+    } else {
+      window.history.replaceState({ page: targetPage, productId: targetProductId }, "", newUrl);
+    }
   }, [currentPage, selectedProductId]);
 
   // History sync hook 3: Smooth scroll-back effect when exiting product details page
