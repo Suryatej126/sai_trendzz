@@ -224,9 +224,13 @@ function App() {
             }
           } else {
             productsSnapshot.forEach((doc) => {
-              products.push(doc.data());
+              const data = doc.data();
+              if (data) {
+                data.id = Number(data.id);
+                products.push(data);
+              }
             });
-            products.sort((a, b) => b.id - a.id);
+            products.sort((a, b) => Number(b.id) - Number(a.id));
           }
           setProductsList(products);
 
@@ -356,9 +360,9 @@ function App() {
 
   const handleAddProduct = async (newProduct) => {
     const nextId = productsList.length > 0 
-      ? Math.max(...productsList.map(p => p.id)) + 1 
+      ? Math.max(...productsList.map(p => Number(p.id))) + 1 
       : 1;
-    const productWithId = { ...newProduct, id: nextId };
+    const productWithId = { ...newProduct, id: Number(nextId) };
     
     // Update local state instantly for snappy UI response
     setProductsList([productWithId, ...productsList]);
@@ -376,10 +380,11 @@ function App() {
   };
 
   const handleUpdateProduct = async (updatedProduct) => {
+    const sanitizedProduct = { ...updatedProduct, id: Number(updatedProduct.id) };
     // Update local state
     setProductsList(
       productsList.map((product) => 
-        product.id === updatedProduct.id ? updatedProduct : product
+        Number(product.id) === Number(updatedProduct.id) ? sanitizedProduct : product
       )
     );
 
@@ -387,7 +392,7 @@ function App() {
     if (isFirebaseEnabled) {
       try {
         const docRef = doc(db, "products", String(updatedProduct.id));
-        await setDoc(docRef, updatedProduct);
+        await setDoc(docRef, sanitizedProduct);
         console.log("[Sai Trends Firebase] Product updated in cloud storage:", updatedProduct.id);
       } catch (error) {
         console.error("[Sai Trends Firebase] Update product failed:", error);
@@ -397,8 +402,8 @@ function App() {
 
   const handleDeleteProduct = async (id) => {
     // Update local state
-    setProductsList(productsList.filter((product) => product.id !== id));
-    if (selectedProductId === id) {
+    setProductsList(productsList.filter((product) => Number(product.id) !== Number(id)));
+    if (Number(selectedProductId) === Number(id)) {
       setSelectedProductId(null);
     }
 
