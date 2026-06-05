@@ -58,6 +58,56 @@ export default function Admin({
   // Search state inside the admin catalog table list
   const [adminSearch, setAdminSearch] = useState("");
 
+  // --- CLOUDINARY UPLOAD STATE & HANDLER ---
+  const [uploadingState, setUploadingState] = useState({
+    image: false,
+    image2: false,
+    image3: false
+  });
+
+  const handleCloudinaryUpload = async (e, fieldName, setFieldVal) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check size limit (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert("File is too large. Maximum size allowed is 10MB.");
+      return;
+    }
+
+    setUploadingState(prev => ({ ...prev, [fieldName]: true }));
+
+    try {
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dtrkppnvt";
+      const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "ml_default";
+      
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", uploadPreset);
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error?.message || "Upload failed");
+      }
+
+      const data = await response.json();
+      setFieldVal(data.public_id);
+    } catch (err) {
+      console.error("[Sai Trends Cloudinary] Upload error:", err);
+      alert(`Cloudinary Upload Failed: ${err.message}\n\nPlease ensure you have created an Unsigned Upload Preset in your Cloudinary Settings, and configured it in your .env.local file as VITE_CLOUDINARY_UPLOAD_PRESET.`);
+    } finally {
+      setUploadingState(prev => ({ ...prev, [fieldName]: false }));
+    }
+  };
+
   // All sizes options for selection checklist
   const allSizesList = ["S", "M", "L", "XL", "XXL", "30", "32", "34", "36", "UK 6", "UK 7", "UK 8", "UK 9", "UK 10", "UK 11"];
   
@@ -492,43 +542,82 @@ export default function Admin({
                 </div>
 
                 <div className="flex flex-col space-y-1">
-                  <label className="text-[10px] uppercase tracking-wider text-charcoal-400 font-bold">
-                    Image URL <span className="text-red-500">*</span>
+                  <label className="text-[10px] uppercase tracking-wider text-charcoal-400 font-bold flex justify-between items-center">
+                    <span>Image URL / Public ID <span className="text-red-500">*</span></span>
+                    {uploadingState.image && <span className="text-gold-500 animate-pulse text-[9px]">Uploading...</span>}
                   </label>
-                  <input
-                    type="text"
-                    required
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                    placeholder="Paste Unsplash image web address URL"
-                    className="bg-white dark:bg-charcoal-600 border border-charcoal-100 dark:border-charcoal-500 text-charcoal-500 dark:text-white text-xs px-3 py-2 rounded-sm focus:outline-none focus:border-gold-500 dark:focus:border-gold-400"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      required
+                      value={image}
+                      onChange={(e) => setImage(e.target.value)}
+                      placeholder="Paste image URL or enter Cloudinary Public ID"
+                      className="flex-grow bg-white dark:bg-charcoal-600 border border-charcoal-100 dark:border-charcoal-500 text-charcoal-500 dark:text-white text-xs px-3 py-2 rounded-sm focus:outline-none focus:border-gold-500 dark:focus:border-gold-400"
+                    />
+                    <label className="shrink-0 cursor-pointer bg-charcoal-100 hover:bg-gold-500 hover:text-white text-charcoal-500 dark:bg-charcoal-600 dark:text-charcoal-200 dark:hover:bg-gold-500 dark:hover:text-white text-[11px] font-semibold px-3 py-2 border border-charcoal-100 dark:border-charcoal-500 rounded-sm flex items-center justify-center transition-colors">
+                      <span>📤 Upload</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleCloudinaryUpload(e, "image", setImage)}
+                        disabled={uploadingState.image}
+                      />
+                    </label>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col space-y-1">
-                    <label className="text-[10px] uppercase tracking-wider text-charcoal-400 font-bold">
-                      Additional Image 2 URL
+                    <label className="text-[10px] uppercase tracking-wider text-charcoal-400 font-bold flex justify-between items-center">
+                      <span>Additional Image 2 URL/ID</span>
+                      {uploadingState.image2 && <span className="text-gold-500 animate-pulse text-[9px]">Uploading...</span>}
                     </label>
-                    <input
-                      type="text"
-                      value={image2}
-                      onChange={(e) => setImage2(e.target.value)}
-                      placeholder="Optional second photo URL"
-                      className="bg-white dark:bg-charcoal-600 border border-charcoal-100 dark:border-charcoal-500 text-charcoal-500 dark:text-white text-xs px-3 py-2 rounded-sm focus:outline-none focus:border-gold-500 dark:focus:border-gold-400"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={image2}
+                        onChange={(e) => setImage2(e.target.value)}
+                        placeholder="Optional second photo"
+                        className="flex-grow bg-white dark:bg-charcoal-600 border border-charcoal-100 dark:border-charcoal-500 text-charcoal-500 dark:text-white text-xs px-3 py-2 rounded-sm focus:outline-none focus:border-gold-500 dark:focus:border-gold-400"
+                      />
+                      <label className="shrink-0 cursor-pointer bg-charcoal-100 hover:bg-gold-500 hover:text-white text-charcoal-500 dark:bg-charcoal-600 dark:text-charcoal-200 dark:hover:bg-gold-500 dark:hover:text-white text-[11px] font-semibold px-3 py-2 border border-charcoal-100 dark:border-charcoal-500 rounded-sm flex items-center justify-center transition-colors">
+                        <span>📤</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleCloudinaryUpload(e, "image2", setImage2)}
+                          disabled={uploadingState.image2}
+                        />
+                      </label>
+                    </div>
                   </div>
                   <div className="flex flex-col space-y-1">
-                    <label className="text-[10px] uppercase tracking-wider text-charcoal-400 font-bold">
-                      Additional Image 3 URL
+                    <label className="text-[10px] uppercase tracking-wider text-charcoal-400 font-bold flex justify-between items-center">
+                      <span>Additional Image 3 URL/ID</span>
+                      {uploadingState.image3 && <span className="text-gold-500 animate-pulse text-[9px]">Uploading...</span>}
                     </label>
-                    <input
-                      type="text"
-                      value={image3}
-                      onChange={(e) => setImage3(e.target.value)}
-                      placeholder="Optional third photo URL"
-                      className="bg-white dark:bg-charcoal-600 border border-charcoal-100 dark:border-charcoal-500 text-charcoal-500 dark:text-white text-xs px-3 py-2 rounded-sm focus:outline-none focus:border-gold-500 dark:focus:border-gold-400"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={image3}
+                        onChange={(e) => setImage3(e.target.value)}
+                        placeholder="Optional third photo"
+                        className="flex-grow bg-white dark:bg-charcoal-600 border border-charcoal-100 dark:border-charcoal-500 text-charcoal-500 dark:text-white text-xs px-3 py-2 rounded-sm focus:outline-none focus:border-gold-500 dark:focus:border-gold-400"
+                      />
+                      <label className="shrink-0 cursor-pointer bg-charcoal-100 hover:bg-gold-500 hover:text-white text-charcoal-500 dark:bg-charcoal-600 dark:text-charcoal-200 dark:hover:bg-gold-500 dark:hover:text-white text-[11px] font-semibold px-3 py-2 border border-charcoal-100 dark:border-charcoal-500 rounded-sm flex items-center justify-center transition-colors">
+                        <span>📤</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleCloudinaryUpload(e, "image3", setImage3)}
+                          disabled={uploadingState.image3}
+                        />
+                      </label>
+                    </div>
                   </div>
                 </div>
 

@@ -1,5 +1,6 @@
 import React from "react";
 import ProductCard from "../components/ProductCard";
+import CloudinaryImage from "../components/CloudinaryImage";
 import heroBg from "../assets/hero.png";
 
 /**
@@ -185,17 +186,21 @@ export default function Home({ products, setActivePage, onSelectProduct, lookboo
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="overflow-hidden bg-charcoal-100 dark:bg-charcoal-800 aspect-[3/4] rounded-sm shadow-md border border-charcoal-100 dark:border-charcoal-600">
-            <img
+            <CloudinaryImage
               src={lookbook.image1}
               alt="Premium blazer details"
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+              width={400}
+              height={533}
             />
           </div>
           <div className="overflow-hidden bg-charcoal-100 dark:bg-charcoal-800 aspect-[3/4] rounded-sm shadow-md mt-8 border border-charcoal-100 dark:border-charcoal-600">
-            <img
+            <CloudinaryImage
               src={lookbook.image2}
               alt="Premium shirts collection"
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+              width={400}
+              height={533}
             />
           </div>
         </div>

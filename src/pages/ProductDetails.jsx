@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import CloudinaryImage from "../components/CloudinaryImage";
 
 /**
  * ProductDetails Page Component
@@ -111,10 +112,12 @@ Please confirm availability and dispatch timeline. Thank you!`;
           {/* Left Column: Product Image Gallery */}
           <div className="flex flex-col space-y-4 max-w-lg mx-auto lg:mx-0 w-full">
             <div className="bg-charcoal-50 dark:bg-charcoal-800 border border-charcoal-100 dark:border-charcoal-600 rounded-sm overflow-hidden aspect-[3/4] w-full relative shadow-sm">
-              <img
+              <CloudinaryImage
                 src={activeImg || product.image}
                 alt={product.name}
                 className="w-full h-full object-cover object-center transition-all duration-300"
+                width={600}
+                height={800}
               />
               {product.tag && (
                 <span className="absolute top-4 left-4 bg-charcoal-500 text-white text-[10px] uppercase tracking-wider font-semibold py-1.5 px-4 border border-gold-300/30 shadow-md">
@@ -135,7 +138,7 @@ Please confirm availability and dispatch timeline. Thank you!`;
                       : "border-charcoal-100 dark:border-charcoal-600 opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <img src={product.image} alt="Main view" className="w-full h-full object-cover object-center" />
+                  <CloudinaryImage src={product.image} alt="Main view" className="w-full h-full object-cover object-center" width={80} height={100} />
                 </button>
 
                 {/* Thumbnail 2 */}
@@ -148,7 +151,7 @@ Please confirm availability and dispatch timeline. Thank you!`;
                         : "border-charcoal-100 dark:border-charcoal-600 opacity-70 hover:opacity-100"
                     }`}
                   >
-                    <img src={product.image2} alt="Additional view 2" className="w-full h-full object-cover object-center" />
+                    <CloudinaryImage src={product.image2} alt="Additional view 2" className="w-full h-full object-cover object-center" width={80} height={100} />
                   </button>
                 )}
 
@@ -162,7 +165,7 @@ Please confirm availability and dispatch timeline. Thank you!`;
                         : "border-charcoal-100 dark:border-charcoal-600 opacity-70 hover:opacity-100"
                     }`}
                   >
-                    <img src={product.image3} alt="Additional view 3" className="w-full h-full object-cover object-center" />
+                    <CloudinaryImage src={product.image3} alt="Additional view 3" className="w-full h-full object-cover object-center" width={80} height={100} />
                   </button>
                 )}
               </div>

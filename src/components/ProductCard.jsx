@@ -1,4 +1,5 @@
 import React from "react";
+import CloudinaryImage from "./CloudinaryImage";
 
 /**
  * ProductCard Component
@@ -32,11 +33,12 @@ export default function ProductCard({ product, onSelectProduct }) {
 
       {/* Product Image Wrapper with smooth crop and hover-zoom */}
       <div className="aspect-[3/4] w-full overflow-hidden bg-charcoal-100 dark:bg-charcoal-900 relative">
-        <img
+        <CloudinaryImage
           src={product.image}
           alt={product.name}
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
-          loading="lazy"
+          width={400}
+          height={533}
         />
         {/* Overlay subtle dark layer on hover for premium styling */}
         <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
