@@ -16,6 +16,10 @@ import { products as initialProducts } from "./data/products";
 // Import brand logo image for the transition loader
 import logoImg from "./assets/image.png";
 
+// Import Firebase config configuration and Firestore cloud methods
+import { db, isFirebaseEnabled } from "./config/firebase";
+import { collection, doc, getDocs, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+
 /**
  * Main App Component
  * 
@@ -27,33 +31,11 @@ function App() {
   // State for Website Intro Landing Animation (Double blink logo intro)
   const [showIntro, setShowIntro] = useState(true);
   const [introFadeOut, setIntroFadeOut] = useState(false);
+  const [introMinTimeElapsed, setIntroMinTimeElapsed] = useState(false);
 
   // 1. State for active navbar highlighting ('home', 'collection', 'about', 'contact', 'admin')
   const [currentPage, setCurrentPage] = useState("home");
 
-  // Lock scroll and handle intro screen timings
-  useEffect(() => {
-    if (showIntro) {
-      document.body.style.overflow = "hidden";
-    }
-
-    const fadeTimer = setTimeout(() => {
-      setIntroFadeOut(true);
-    }, 2000); // Dissolves the black background overlay in sync with the elements fading out
-
-    const removeTimer = setTimeout(() => {
-      setShowIntro(false);
-      document.body.style.overflow = "";
-    }, 2400); // Completely unmounts at 2.4 seconds
-
-    return () => {
-      clearTimeout(fadeTimer);
-      clearTimeout(removeTimer);
-      document.body.style.overflow = "";
-    };
-  }, [showIntro]);
-
-  
   // 2. State to track active product details view (holds product ID, null if not active)
   const [selectedProductId, setSelectedProductId] = useState(null);
 
@@ -63,38 +45,58 @@ function App() {
     return savedCode || "123456";
   });
 
-  // 4. State to hold the active list of products (persisted in localStorage)
-  const [productsList, setProductsList] = useState(() => {
-    const saved = localStorage.getItem("sai_trends_products");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (error) {
-        console.error("Failed to parse products from local storage", error);
-      }
-    }
-    return initialProducts;
-  });
+  // State for data loading from Firestore/LocalStorage
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
+  // 4. State to hold the active list of products
+  const [productsList, setProductsList] = useState([]);
 
   // 5. State for Light/Dark Theme Mode
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem("sai_trends_theme") || "light";
   });
 
-  // 6. State for Lookbook (persisted in localStorage)
-  const [lookbook, setLookbook] = useState(() => {
-    const defaultLookbook = {
-      heading: "Redefining the Gentleman's Dress Code",
-      description: "Our latest collection focuses on versatile wardrobe structures. Mix, match, and transition effortlessly from a casual morning zoom call to an evening social event. High-quality details are not just added; they are integrated into every stitch.",
-      image1: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=500&auto=format&fit=crop&q=80",
-      image2: "https://images.unsplash.com/photo-1505022610485-0249ba5b3675?w=500&auto=format&fit=crop&q=80"
-    };
-    const saved = localStorage.getItem("sai_trends_lookbook");
-    return saved ? JSON.parse(saved) : defaultLookbook;
+  // 6. State for Lookbook
+  const [lookbook, setLookbook] = useState({
+    heading: "Redefining the Gentleman's Dress Code",
+    description: "Our latest collection focuses on versatile wardrobe structures. Mix, match, and transition effortlessly from a casual morning zoom call to an evening social event. High-quality details are not just added; they are integrated into every stitch.",
+    image1: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=500&auto=format&fit=crop&q=80",
+    image2: "https://images.unsplash.com/photo-1505022610485-0249ba5b3675?w=500&auto=format&fit=crop&q=80"
   });
 
   // 7. State for transition loader (when opening product details)
   const [isNavigating, setIsNavigating] = useState(false);
+
+  // Lock scroll during intro animation
+  useEffect(() => {
+    if (showIntro) {
+      document.body.style.overflow = "hidden";
+    }
+
+    // Minimum intro screen duration of 2.0 seconds before starting fade-out (unmounts at 2.4s)
+    const timer = setTimeout(() => {
+      setIntroMinTimeElapsed(true);
+    }, 2000);
+
+    return () => {
+      clearTimeout(timer);
+      document.body.style.overflow = "";
+    };
+  }, [showIntro]);
+
+  // Trigger fade-out and unmount when BOTH minimum intro time has elapsed AND cloud data loading completes
+  useEffect(() => {
+    if (introMinTimeElapsed && !isLoadingData) {
+      setIntroFadeOut(true);
+      
+      const removeTimer = setTimeout(() => {
+        setShowIntro(false);
+        document.body.style.overflow = "";
+      }, 400); // 400ms background transition time
+
+      return () => clearTimeout(removeTimer);
+    }
+  }, [introMinTimeElapsed, isLoadingData]);
 
   // Ref to prevent history sync loops when back button is pressed
   const isPopStateRef = useRef(false);
@@ -201,10 +203,102 @@ function App() {
     }
   }, [selectedProductId]);
 
+  // Fetch initial data from Firestore or fallback to LocalStorage
+  useEffect(() => {
+    async function loadData() {
+      if (isFirebaseEnabled) {
+        try {
+          console.log("[Sai Trends Database] Loading from Firestore...");
+          
+          // 1. Fetch Products
+          const productsColRef = collection(db, "products");
+          const productsSnapshot = await getDocs(productsColRef);
+          let products = [];
+          
+          if (productsSnapshot.empty) {
+            console.log("[Sai Trends Database] Seeding Firestore with initial products...");
+            for (const item of initialProducts) {
+              const docRef = doc(productsColRef, String(item.id));
+              await setDoc(docRef, item);
+              products.push(item);
+            }
+          } else {
+            productsSnapshot.forEach((doc) => {
+              products.push(doc.data());
+            });
+            products.sort((a, b) => b.id - a.id);
+          }
+          setProductsList(products);
+
+          // 2. Fetch Lookbook
+          const lookbookDocRef = doc(db, "settings", "lookbook");
+          const lookbookSnapshot = await getDoc(lookbookDocRef);
+          const defaultLookbook = {
+            heading: "Redefining the Gentleman's Dress Code",
+            description: "Our latest collection focuses on versatile wardrobe structures. Mix, match, and transition effortlessly from a casual morning zoom call to an evening social event. High-quality details are not just added; they are integrated into every stitch.",
+            image1: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=500&auto=format&fit=crop&q=80",
+            image2: "https://images.unsplash.com/photo-1505022610485-0249ba5b3675?w=500&auto=format&fit=crop&q=80"
+          };
+
+          if (lookbookSnapshot.exists()) {
+            setLookbook(lookbookSnapshot.data());
+          } else {
+            console.log("[Sai Trends Database] Seeding default lookbook settings...");
+            await setDoc(lookbookDocRef, defaultLookbook);
+            setLookbook(defaultLookbook);
+          }
+        } catch (error) {
+          console.error("[Sai Trends Database] Firestore load failed, falling back to LocalStorage:", error);
+          loadFromLocalStorage();
+        } finally {
+          setIsLoadingData(false);
+        }
+      } else {
+        loadFromLocalStorage();
+      }
+    }
+
+    function loadFromLocalStorage() {
+      // Products fallback
+      const savedProducts = localStorage.getItem("sai_trends_products");
+      if (savedProducts) {
+        try {
+          setProductsList(JSON.parse(savedProducts));
+        } catch (e) {
+          setProductsList(initialProducts);
+        }
+      } else {
+        setProductsList(initialProducts);
+      }
+
+      // Lookbook fallback
+      const defaultLookbook = {
+        heading: "Redefining the Gentleman's Dress Code",
+        description: "Our latest collection focuses on versatile wardrobe structures. Mix, match, and transition effortlessly from a casual morning zoom call to an evening social event. High-quality details are not just added; they are integrated into every stitch.",
+        image1: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=500&auto=format&fit=crop&q=80",
+        image2: "https://images.unsplash.com/photo-1505022610485-0249ba5b3675?w=500&auto=format&fit=crop&q=80"
+      };
+      const savedLookbook = localStorage.getItem("sai_trends_lookbook");
+      if (savedLookbook) {
+        try {
+          setLookbook(JSON.parse(savedLookbook));
+        } catch (e) {
+          setLookbook(defaultLookbook);
+        }
+      } else {
+        setLookbook(defaultLookbook);
+      }
+      setIsLoadingData(false);
+    }
+
+    loadData();
+  }, []);
+
   // Synchronization Hooks
   useEffect(() => {
+    if (isLoadingData) return;
     localStorage.setItem("sai_trends_products", JSON.stringify(productsList));
-  }, [productsList]);
+  }, [productsList, isLoadingData]);
 
   useEffect(() => {
     localStorage.setItem("sai_trends_theme", theme);
@@ -216,8 +310,9 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
+    if (isLoadingData || !lookbook) return;
     localStorage.setItem("sai_trends_lookbook", JSON.stringify(lookbook));
-  }, [lookbook]);
+  }, [lookbook, isLoadingData]);
 
   // 6. Scroll Spy Hook: Highlights the active section in the Navbar as the user scrolls the page
   useEffect(() => {
@@ -259,26 +354,79 @@ function App() {
 
   // --- CRUD STATE HANDLERS ---
 
-  const handleAddProduct = (newProduct) => {
+  const handleAddProduct = async (newProduct) => {
     const nextId = productsList.length > 0 
       ? Math.max(...productsList.map(p => p.id)) + 1 
       : 1;
     const productWithId = { ...newProduct, id: nextId };
+    
+    // Update local state instantly for snappy UI response
     setProductsList([productWithId, ...productsList]);
+
+    // Save to Firestore database if enabled
+    if (isFirebaseEnabled) {
+      try {
+        const docRef = doc(db, "products", String(nextId));
+        await setDoc(docRef, productWithId);
+        console.log("[Sai Trends Firebase] Product added to cloud storage:", nextId);
+      } catch (error) {
+        console.error("[Sai Trends Firebase] Add product failed:", error);
+      }
+    }
   };
 
-  const handleUpdateProduct = (updatedProduct) => {
+  const handleUpdateProduct = async (updatedProduct) => {
+    // Update local state
     setProductsList(
       productsList.map((product) => 
         product.id === updatedProduct.id ? updatedProduct : product
       )
     );
+
+    // Save to Firestore database if enabled
+    if (isFirebaseEnabled) {
+      try {
+        const docRef = doc(db, "products", String(updatedProduct.id));
+        await setDoc(docRef, updatedProduct);
+        console.log("[Sai Trends Firebase] Product updated in cloud storage:", updatedProduct.id);
+      } catch (error) {
+        console.error("[Sai Trends Firebase] Update product failed:", error);
+      }
+    }
   };
 
-  const handleDeleteProduct = (id) => {
+  const handleDeleteProduct = async (id) => {
+    // Update local state
     setProductsList(productsList.filter((product) => product.id !== id));
     if (selectedProductId === id) {
       setSelectedProductId(null);
+    }
+
+    // Delete from Firestore database if enabled
+    if (isFirebaseEnabled) {
+      try {
+        const docRef = doc(db, "products", String(id));
+        await deleteDoc(docRef);
+        console.log("[Sai Trends Firebase] Product deleted from cloud storage:", id);
+      } catch (error) {
+        console.error("[Sai Trends Firebase] Delete product failed:", error);
+      }
+    }
+  };
+
+  const handleUpdateLookbook = async (updatedLookbook) => {
+    // Update local state
+    setLookbook(updatedLookbook);
+
+    // Save to Firestore database if enabled
+    if (isFirebaseEnabled) {
+      try {
+        const docRef = doc(db, "settings", "lookbook");
+        await setDoc(docRef, updatedLookbook);
+        console.log("[Sai Trends Firebase] Lookbook settings saved to cloud storage.");
+      } catch (error) {
+        console.error("[Sai Trends Firebase] Save lookbook failed:", error);
+      }
     }
   };
 
@@ -333,7 +481,7 @@ function App() {
           onDeleteProduct={handleDeleteProduct}
           setActivePage={setCurrentPage}
           lookbook={lookbook}
-          onUpdateLookbook={setLookbook}
+          onUpdateLookbook={handleUpdateLookbook}
         />
       );
     }
