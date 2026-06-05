@@ -52,7 +52,7 @@ export default function Collection({ products, onSelectProduct }) {
     }
 
     return result;
-  }, [selectedCategory, searchQuery, sortBy]);
+  }, [products, selectedCategory, searchQuery, sortBy]);
 
   return (
     <div className="bg-white dark:bg-charcoal-700 min-h-screen py-6 md:py-12 transition-colors duration-300">
