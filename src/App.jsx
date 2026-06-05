@@ -406,9 +406,10 @@ function App() {
     }
   };
 
-  const handleDeleteProduct = async (id) => {
-    const originalProduct = productsList.find(p => Number(p.id) === Number(id));
-    const docName = originalProduct?.docId || String(id);
+  const handleDeleteProduct = async (productToDelete) => {
+    if (!productToDelete) return;
+    const id = productToDelete.id;
+    const docName = productToDelete.docId || String(id);
 
     // Update local state
     setProductsList(productsList.filter((product) => Number(product.id) !== Number(id)));

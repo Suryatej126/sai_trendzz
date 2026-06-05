@@ -303,10 +303,10 @@ export default function Admin({
   };
 
   // Handle product deletion with prompt
-  const handleDeleteClick = (id, productName) => {
-    const confirmDelete = window.confirm(`Are you sure you want to delete "${productName}" from the store catalog?`);
+  const handleDeleteClick = (product) => {
+    const confirmDelete = window.confirm(`Are you sure you want to delete "${product.name}" from the store catalog?`);
     if (confirmDelete) {
-      onDeleteProduct(id);
+      onDeleteProduct(product);
     }
   };
 
@@ -392,6 +392,15 @@ export default function Admin({
           </div>
           
           <div className="flex space-x-3 self-end sm:self-auto">
+            <button
+              onClick={() => {
+                resetForm();
+                window.scrollTo({ top: 350, behavior: "smooth" });
+              }}
+              className="px-4 py-2 bg-gold-500 hover:bg-gold-600 text-white text-xs uppercase tracking-wider font-bold rounded-sm shadow-sm transition-colors cursor-pointer"
+            >
+              ➕ Add New Item
+            </button>
             <button
               onClick={() => {
                 setActivePage("home");
@@ -953,7 +962,7 @@ export default function Admin({
                               Edit
                             </button>
                             <button
-                              onClick={() => handleDeleteClick(product.id, product.name)}
+                              onClick={() => handleDeleteClick(product)}
                               className="px-2 py-1 text-[10px] uppercase font-bold text-red-500 border border-red-200/50 hover:border-red-500 rounded-sm hover:bg-red-50 dark:hover:bg-charcoal-600/50 transition-colors"
                             >
                               Del
