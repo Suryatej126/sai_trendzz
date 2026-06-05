@@ -411,6 +411,8 @@ function App() {
     const id = productToDelete.id;
     const docName = productToDelete.docId || String(id);
 
+    console.log("[Sai Trends Debug] Deleting product:", { id, docName, productToDelete });
+
     // Update local state
     setProductsList(productsList.filter((product) => Number(product.id) !== Number(id)));
     if (Number(selectedProductId) === Number(id)) {
