@@ -22,7 +22,7 @@ export default function Collection({ products, onSelectProduct }) {
   const categories = useMemo(() => {
     const list = new Set(products.map((item) => item.category));
     return ["All", ...Array.from(list)];
-  }, []);
+  }, [products]);
 
   // Filter and sort products based on selected states
   const filteredProducts = useMemo(() => {
