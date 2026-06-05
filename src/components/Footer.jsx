@@ -118,7 +118,7 @@ export default function Footer({ setActivePage, setSelectedProductId }) {
               <li className="flex items-center space-x-2">
                 <span className="text-gold-400">💬</span>
                 <a
-                  href="https://wa.me/919999999999"
+                  href="https://wa.me/919346305355"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-gold-300 transition-colors"

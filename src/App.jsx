@@ -24,8 +24,35 @@ import logoImg from "./assets/image.png";
  * and single-page scroll behavior with an active Scroll Spy.
  */
 function App() {
+  // State for Website Intro Landing Animation (Double blink logo intro)
+  const [showIntro, setShowIntro] = useState(true);
+  const [introFadeOut, setIntroFadeOut] = useState(false);
+
   // 1. State for active navbar highlighting ('home', 'collection', 'about', 'contact', 'admin')
   const [currentPage, setCurrentPage] = useState("home");
+
+  // Lock scroll and handle intro screen timings
+  useEffect(() => {
+    if (showIntro) {
+      document.body.style.overflow = "hidden";
+    }
+
+    const fadeTimer = setTimeout(() => {
+      setIntroFadeOut(true);
+    }, 2000); // Dissolves the black background overlay in sync with the elements fading out
+
+    const removeTimer = setTimeout(() => {
+      setShowIntro(false);
+      document.body.style.overflow = "";
+    }, 2400); // Completely unmounts at 2.4 seconds
+
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(removeTimer);
+      document.body.style.overflow = "";
+    };
+  }, [showIntro]);
+
   
   // 2. State to track active product details view (holds product ID, null if not active)
   const [selectedProductId, setSelectedProductId] = useState(null);
@@ -388,6 +415,46 @@ function App() {
           <p className="mt-4 text-xs font-display tracking-widest text-gold-600 dark:text-gold-450 uppercase font-bold animate-pulse drop-shadow-[0_2px_8px_rgba(184,134,11,0.3)]">
             Sai Trends
           </p>
+        </div>
+      )}
+
+      {/* Full-Screen Landing Introduction Screen */}
+      {showIntro && (
+        <div 
+          className={`fixed inset-0 z-[9999] bg-[#070707] transition-all duration-500 ease-in-out ${
+            introFadeOut ? "opacity-0 pointer-events-none" : "opacity-100"
+          }`}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "100vh",
+            flexDirection: "column"
+          }}
+        >
+          {/* Subtle Ambient Golden Glow Behind the Logo */}
+          <div className="absolute w-72 h-72 bg-gold-500/10 rounded-full blur-3xl -z-10 animate-pulse" />
+          
+          {/* Centered Brand Logo with Slow Glow & Fade-in Animation */}
+          <div className="animate-intro-logo w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-white flex items-center justify-center border-2 border-gold-400 overflow-hidden select-none p-2.5">
+            <img src={logoImg} alt="Sai Trends Brand Logo" className="w-full h-full object-contain scale-100" />
+          </div>
+
+          {/* Title and Subtitle Animation (Slow Glow Fade-in and Fade-out) */}
+          <div className="mt-8 select-none w-full flex flex-col items-center justify-center px-4" style={{ textAlign: "center" }}>
+            <h1 
+              className="animate-intro-text text-3xl sm:text-4xl font-display font-bold tracking-[0.3em] mr-[-0.3em] text-white"
+              style={{ textAlign: "center" }}
+            >
+              SAI TRENDS
+            </h1>
+            <p 
+              className="animate-intro-subtitle text-[10px] sm:text-xs uppercase tracking-[0.4em] mr-[-0.4em] text-gold-300 font-semibold font-sans mt-3"
+              style={{ textAlign: "center" }}
+            >
+              Made for Modern Men
+            </p>
+          </div>
         </div>
       )}
     </div>

@@ -88,3 +88,96 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #B8860B; /* Darker gold on hover */
 }
+
+/* -------------------------------------------------------------
+   Website Intro (Splash) Screen Animations & Custom Classes
+   ------------------------------------------------------------- */
+
+@keyframes intro-logo-fade-in-out {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+    box-shadow: 0 0 0px rgba(184, 134, 11, 0);
+  }
+  /* Fully visible and glowing */
+  45% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 40px rgba(184, 134, 11, 0.75), inset 0 0 15px rgba(184, 134, 11, 0.15);
+  }
+  /* Hold glow state */
+  75% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 40px rgba(184, 134, 11, 0.75), inset 0 0 15px rgba(184, 134, 11, 0.15);
+  }
+  /* Smooth fade-out */
+  100% {
+    opacity: 0;
+    transform: scale(0.95);
+    box-shadow: 0 0 0px rgba(184, 134, 11, 0);
+  }
+}
+
+@keyframes intro-text-fade-in-out {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+    text-shadow: 0 0 0px rgba(184, 134, 11, 0);
+  }
+  /* Fully visible & glowing name */
+  45% {
+    opacity: 1;
+    transform: translateY(0);
+    text-shadow: 0 0 12px rgba(211, 178, 102, 0.6);
+  }
+  /* Pulse glow intensity */
+  60% {
+    opacity: 1;
+    transform: translateY(0);
+    text-shadow: 0 0 20px rgba(211, 178, 102, 0.85), 0 0 5px rgba(255, 255, 255, 0.4);
+  }
+  /* Hold state */
+  75% {
+    opacity: 1;
+    transform: translateY(0);
+    text-shadow: 0 0 12px rgba(211, 178, 102, 0.6);
+  }
+  /* Smooth fade-out sliding upward */
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+    text-shadow: 0 0 0px rgba(184, 134, 11, 0);
+  }
+}
+
+@keyframes intro-subtitle-fade-in-out {
+  0%, 15% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  45%, 75% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}
+
+.animate-intro-logo {
+  animation: intro-logo-fade-in-out 2.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.animate-intro-text {
+  animation: intro-text-fade-in-out 2.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.animate-intro-subtitle {
+  animation: intro-subtitle-fade-in-out 2.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+
+
+
