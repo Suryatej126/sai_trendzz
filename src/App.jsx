@@ -218,15 +218,17 @@ function App() {
           if (productsSnapshot.empty) {
             console.log("[Sai Trends Database] Seeding Firestore with initial products...");
             for (const item of initialProducts) {
-              const docRef = doc(productsColRef, String(item.id));
+              const docName = String(item.id);
+              const docRef = doc(productsColRef, docName);
               await setDoc(docRef, item);
-              products.push(item);
+              products.push({ ...item, docId: docName });
             }
           } else {
             productsSnapshot.forEach((doc) => {
               const data = doc.data();
               if (data) {
                 data.id = Number(data.id);
+                data.docId = doc.id; // Map actual Firestore document ID
                 products.push(data);
               }
             });
@@ -362,7 +364,8 @@ function App() {
     const nextId = productsList.length > 0 
       ? Math.max(...productsList.map(p => Number(p.id))) + 1 
       : 1;
-    const productWithId = { ...newProduct, id: Number(nextId) };
+    const docName = String(nextId);
+    const productWithId = { ...newProduct, id: Number(nextId), docId: docName };
     
     // Update local state instantly for snappy UI response
     setProductsList([productWithId, ...productsList]);
@@ -370,8 +373,8 @@ function App() {
     // Save to Firestore database if enabled
     if (isFirebaseEnabled) {
       try {
-        const docRef = doc(db, "products", String(nextId));
-        await setDoc(docRef, productWithId);
+        const docRef = doc(db, "products", docName);
+        await setDoc(docRef, { ...newProduct, id: Number(nextId) });
         console.log("[Sai Trends Firebase] Product added to cloud storage:", nextId);
       } catch (error) {
         console.error("[Sai Trends Firebase] Add product failed:", error);
@@ -381,17 +384,20 @@ function App() {
 
   const handleUpdateProduct = async (updatedProduct) => {
     const sanitizedProduct = { ...updatedProduct, id: Number(updatedProduct.id) };
-    // Update local state
+    const originalProduct = productsList.find(p => Number(p.id) === Number(updatedProduct.id));
+    const docName = originalProduct?.docId || String(updatedProduct.id);
+    
+    // Update local state (keep docId)
     setProductsList(
       productsList.map((product) => 
-        Number(product.id) === Number(updatedProduct.id) ? sanitizedProduct : product
+        Number(product.id) === Number(updatedProduct.id) ? { ...sanitizedProduct, docId: docName } : product
       )
     );
 
     // Save to Firestore database if enabled
     if (isFirebaseEnabled) {
       try {
-        const docRef = doc(db, "products", String(updatedProduct.id));
+        const docRef = doc(db, "products", docName);
         await setDoc(docRef, sanitizedProduct);
         console.log("[Sai Trends Firebase] Product updated in cloud storage:", updatedProduct.id);
       } catch (error) {
@@ -401,6 +407,9 @@ function App() {
   };
 
   const handleDeleteProduct = async (id) => {
+    const originalProduct = productsList.find(p => Number(p.id) === Number(id));
+    const docName = originalProduct?.docId || String(id);
+
     // Update local state
     setProductsList(productsList.filter((product) => Number(product.id) !== Number(id)));
     if (Number(selectedProductId) === Number(id)) {
@@ -410,7 +419,7 @@ function App() {
     // Delete from Firestore database if enabled
     if (isFirebaseEnabled) {
       try {
-        const docRef = doc(db, "products", String(id));
+        const docRef = doc(db, "products", docName);
         await deleteDoc(docRef);
         console.log("[Sai Trends Firebase] Product deleted from cloud storage:", id);
       } catch (error) {
