@@ -41,10 +41,12 @@ export default function ProductQuickView({ product, onClose }) {
   // Trigger WhatsApp order redirection
   const handleWhatsAppOrder = () => {
     const phoneNumber = "919346305355";
+    const itemLink = `${window.location.origin}?product=${product.id}`;
     const message = `Hello Sai Trends! I would like to order:
 *Product Name:* ${product.name}
 *Size:* ${selectedSize}
 *Price:* ${formatPrice(product.price)}
+*Link:* ${itemLink}
 
 Please confirm availability and dispatch timeline. Thank you!`;
 

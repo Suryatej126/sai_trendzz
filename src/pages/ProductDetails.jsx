@@ -65,12 +65,14 @@ export default function ProductDetails({ productId, products, setActivePage, set
   // Generate WhatsApp Order Link with a pre-filled custom message
   const handleWhatsAppOrder = () => {
     const phoneNumber = "919346305355"; // Replace with store's actual WhatsApp business number
+    const itemLink = `${window.location.origin}?product=${product.id}`;
 
     // Constructing a structured text message
     const message = `Hello Sai Trends! I would like to order:
 *Product Name:* ${product.name}
 *Size:* ${selectedSize}
 *Price:* ${formatPrice(product.price)}
+*Link:* ${itemLink}
 
 Please confirm availability and dispatch timeline. Thank you!`;
 
