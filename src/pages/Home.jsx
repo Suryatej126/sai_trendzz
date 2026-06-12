@@ -2,6 +2,8 @@ import React from "react";
 import ProductCard from "../components/ProductCard";
 import CloudinaryImage from "../components/CloudinaryImage";
 import logoImg from "../assets/image.png";
+import heroBgImg from "../assets/hero_bg.png";
+
 
 /**
  * Home Page Component
@@ -35,7 +37,7 @@ export default function Home({ products, setActivePage, onSelectProduct, lookboo
           {/* Large styled background logo badge with soft glow and pulse animation */}
           <div className="absolute w-[220px] h-[220px] md:w-[380px] md:h-[380px] rounded-full bg-white/40 dark:bg-charcoal-800/30 border border-gold-400/20 dark:border-gold-400/10 p-4 shadow-[0_0_50px_rgba(184,134,11,0.1)] dark:shadow-[0_0_60px_rgba(184,134,11,0.05)] opacity-[0.15] dark:opacity-[0.1] pointer-events-none select-none animate-[pulse_6s_ease-in-out_infinite] flex items-center justify-center">
             <img
-              src={logoImg}
+              src={heroBgImg}
               alt=""
               className="w-full h-full object-contain filter grayscale dark:invert rounded-full mix-blend-multiply dark:mix-blend-screen"
             />
