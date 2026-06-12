@@ -9,7 +9,7 @@ import ProductCard from "../components/ProductCard";
  * - onSelectProduct: Callback function to open a specific product's details page
  * - onQuickView: Callback function to open Quick View modal
  */
-export default function Collection({ products, onSelectProduct, onQuickView }) {
+export default function Collection({ products, onSelectProduct, onQuickView, onMouseLeaveCard }) {
   // 1. State for selected category filter
   const [selectedCategory, setSelectedCategory] = useState("All");
   
@@ -143,7 +143,9 @@ export default function Collection({ products, onSelectProduct, onQuickView }) {
               <ProductCard
                 key={product.id}
                 product={product}
+                onSelectProduct={onSelectProduct}
                 onQuickView={onQuickView}
+                onMouseLeaveCard={onMouseLeaveCard}
               />
             ))}
           </div>

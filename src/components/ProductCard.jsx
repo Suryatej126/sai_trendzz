@@ -8,7 +8,7 @@ import CloudinaryImage from "./CloudinaryImage";
  * - product: Object containing product details (id, name, price, originalPrice, sizes, image, tag)
  * - onQuickView: Callback function to trigger Quick View popup modal (on hover-held / touch-held)
  */
-export default function ProductCard({ product, onQuickView }) {
+export default function ProductCard({ product, onSelectProduct, onQuickView, onMouseLeaveCard }) {
   const hoverTimerRef = useRef(null);
   const touchTimerRef = useRef(null);
   const isTouchLongPress = useRef(false);
@@ -22,9 +22,11 @@ export default function ProductCard({ product, onQuickView }) {
     }).format(num);
   };
 
-  // Open details in a new tab (short press/click)
+  // Open details in the same tab
   const handleNormalClick = () => {
-    window.open(`?product=${product.id}`, "_blank");
+    if (onSelectProduct) {
+      onSelectProduct(product.id);
+    }
   };
 
   // Hover handlers for Laptop/Desktop
@@ -40,6 +42,9 @@ export default function ProductCard({ product, onQuickView }) {
   const handleMouseLeave = () => {
     if (hoverTimerRef.current) {
       clearTimeout(hoverTimerRef.current);
+    }
+    if (onMouseLeaveCard) {
+      onMouseLeaveCard();
     }
   };
 

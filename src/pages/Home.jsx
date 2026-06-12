@@ -12,7 +12,7 @@ import logoImg from "../assets/image.png";
  * - onSelectProduct: Callback function to view a specific product details
  * - onQuickView: Callback function to open Quick View modal
  */
-export default function Home({ products, setActivePage, onSelectProduct, lookbook, onQuickView }) {
+export default function Home({ products, setActivePage, onSelectProduct, lookbook, onQuickView, onMouseLeaveCard }) {
   
   // Filter products to only display the featured ones (featured: true)
   const featuredProducts = products.filter(product => product.featured).slice(0, 4);
@@ -96,7 +96,9 @@ export default function Home({ products, setActivePage, onSelectProduct, lookboo
             <ProductCard 
               key={product.id} 
               product={product} 
+              onSelectProduct={onSelectProduct}
               onQuickView={onQuickView} 
+              onMouseLeaveCard={onMouseLeaveCard}
             />
           ))}
         </div>

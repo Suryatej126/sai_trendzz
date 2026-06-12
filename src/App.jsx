@@ -106,6 +106,10 @@ function App() {
   // Ref to prevent history sync loops when back button is pressed
   const isPopStateRef = useRef(false);
 
+  // Refs for tracking Quick View hover bridge timers and states
+  const quickViewTimeoutRef = useRef(null);
+  const isHoveringModalRef = useRef(false);
+
   // History sync hook 1: Handle popstate events (e.g. back button clicks)
   useEffect(() => {
     const handlePopState = (event) => {
@@ -487,6 +491,53 @@ function App() {
     }
   };
 
+  // Open Quick View Modal with a clean hover state reset
+  const handleOpenQuickView = (product) => {
+    if (quickViewTimeoutRef.current) {
+      clearTimeout(quickViewTimeoutRef.current);
+    }
+    isHoveringModalRef.current = false;
+    setQuickViewProduct(product);
+  };
+
+  // Triggers exit transition when user hovers off the card (with 250ms hover bridge)
+  const handleCardMouseLeave = () => {
+    if (quickViewTimeoutRef.current) {
+      clearTimeout(quickViewTimeoutRef.current);
+    }
+
+    quickViewTimeoutRef.current = setTimeout(() => {
+      if (!isHoveringModalRef.current) {
+        // Find modal overlay and dispatch event to trigger closing transition
+        const overlayEl = document.getElementById("quick-view-modal-overlay");
+        if (overlayEl) {
+          overlayEl.dispatchEvent(new CustomEvent("trigger-close"));
+        } else {
+          setQuickViewProduct(null);
+        }
+      }
+    }, 250);
+  };
+
+  // Cancel any pending close timers when hover transitions successfully to modal
+  const handleModalMouseEnter = () => {
+    isHoveringModalRef.current = true;
+    if (quickViewTimeoutRef.current) {
+      clearTimeout(quickViewTimeoutRef.current);
+    }
+  };
+
+  // When hover leaves the modal, trigger exit transitions
+  const handleModalMouseLeave = () => {
+    isHoveringModalRef.current = false;
+    const overlayEl = document.getElementById("quick-view-modal-overlay");
+    if (overlayEl) {
+      overlayEl.dispatchEvent(new CustomEvent("trigger-close"));
+    } else {
+      setQuickViewProduct(null);
+    }
+  };
+
   // Helper function to render active page content based on React state
   const renderActivePage = () => {
     // If a product details is selected, show ProductDetails page first (full-page view)
@@ -528,7 +579,8 @@ function App() {
             setActivePage={setCurrentPage}
             onSelectProduct={handleSelectProduct}
             lookbook={lookbook}
-            onQuickView={setQuickViewProduct}
+            onQuickView={handleOpenQuickView}
+            onMouseLeaveCard={handleCardMouseLeave}
           />
         </section>
 
@@ -537,7 +589,8 @@ function App() {
           <Collection
             products={productsList}
             onSelectProduct={handleSelectProduct}
-            onQuickView={setQuickViewProduct}
+            onQuickView={handleOpenQuickView}
+            onMouseLeaveCard={handleCardMouseLeave}
           />
         </section>
 
@@ -587,6 +640,9 @@ function App() {
         <ProductQuickView
           product={quickViewProduct}
           onClose={() => setQuickViewProduct(null)}
+          onSelectProduct={handleSelectProduct}
+          onMouseEnterModal={handleModalMouseEnter}
+          onMouseLeaveModal={handleModalMouseLeave}
         />
       )}
 
