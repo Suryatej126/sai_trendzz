@@ -182,19 +182,6 @@
    Custom Premium Multi-Theme Variable Overrides
    ------------------------------------------------------------- */
 
-.emerald {
-  --color-charcoal-700: #041a12; /* Deep forest/emerald black background */
-  --color-charcoal-800: #08261b; /* Secondary card background */
-  --color-charcoal-600: #0d3b2a; /* Borders and dividers */
-  --color-charcoal-500: #e6f7f0; /* Crisp contrasting text */
-  --color-charcoal-100: #0b3324;
-  --color-gold-500: #dca54c;     /* Soft gold brand accent */
-  --color-gold-600: #b58032;
-  --color-gold-300: #ebd09b;
-  --color-gold-100: #d1b88a;
-  color-scheme: dark;
-}
-
 .navy {
   --color-charcoal-700: #060d1a; /* Midnight deep navy background */
   --color-charcoal-800: #0b192e; /* Navy blue card background */
@@ -208,57 +195,17 @@
   color-scheme: dark;
 }
 
-.royal {
-  --color-charcoal-700: #1a050f; /* Deep wine/royal burgundy background */
-  --color-charcoal-800: #2d0b1d; /* Plum card background */
-  --color-charcoal-600: #3d142b; /* Divider accents */
-  --color-charcoal-500: #fff0f5; /* Lavender white text */
-  --color-charcoal-100: #2d0b1a;
-  --color-gold-500: #f4a2b1;     /* Soft rose-gold brand accent */
-  --color-gold-600: #e07a8c;
-  --color-gold-300: #f8c2cb;
-  --color-gold-100: #ffd1d9;
+.classic {
+  --color-charcoal-700: #000000; /* True black background */
+  --color-charcoal-800: #0d0d0d; /* Very deep gray card background */
+  --color-charcoal-600: #262626; /* Grayscale border accent */
+  --color-charcoal-500: #ffffff; /* Crisp white text contrast */
+  --color-charcoal-100: #1a1a1a;
+  --color-gold-500: #cccccc;     /* Classic silver/platinum brand accent */
+  --color-gold-600: #999999;
+  --color-gold-300: #e5e5e5;
+  --color-gold-100: #f5f5f5;
   color-scheme: dark;
-}
-
-/* -------------------------------------------------------------
-   Smooth Transitions & Premium Popups
-   ------------------------------------------------------------- */
-
-@keyframes fadeIn {
-  from { opacity: 0; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); }
-  to { opacity: 1; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-  to { opacity: 0; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); }
-}
-
-@keyframes scaleUp {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-@keyframes scaleDown {
-  from { transform: scale(1); opacity: 1; }
-  to { transform: scale(0.95); opacity: 0; }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-fadeOut {
-  animation: fadeOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-scaleUp {
-  animation: scaleUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-.animate-scaleDown {
-  animation: scaleDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 

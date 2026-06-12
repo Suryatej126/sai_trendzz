@@ -8,10 +8,10 @@ import ProductCard from "../components/ProductCard";
  * - products: Dynamic list of products passed from App state
  * - onSelectProduct: Callback function to open a specific product's details page
  * - onQuickView: Callback function to open Quick View modal
+ * - selectedCategory: current selected category filter string
+ * - setSelectedCategory: function to change selected category filter
  */
-export default function Collection({ products, onSelectProduct, onQuickView, onMouseLeaveCard }) {
-  // 1. State for selected category filter
-  const [selectedCategory, setSelectedCategory] = useState("All");
+export default function Collection({ products, onSelectProduct, onQuickView, selectedCategory, setSelectedCategory }) {
   
   // 2. State for sorting choice ('default', 'price-low-high', 'price-high-low')
   const [sortBy, setSortBy] = useState("default");
@@ -143,9 +143,7 @@ export default function Collection({ products, onSelectProduct, onQuickView, onM
               <ProductCard
                 key={product.id}
                 product={product}
-                onSelectProduct={onSelectProduct}
-                onQuickView={onQuickView}
-                onMouseLeaveCard={onMouseLeaveCard}
+                onSelect={onSelectProduct}
               />
             ))}
           </div>

@@ -12,13 +12,19 @@ import logoImg from "../assets/image.png";
  * - theme: current active theme string ('light' or 'dark')
  * - setTheme: function to change active theme mode
  */
-export default function Navbar({ activePage, setActivePage, selectedProductId, setSelectedProductId, theme, setTheme }) {
+export default function Navbar({ activePage, setActivePage, selectedProductId, setSelectedProductId, theme, setTheme, setSelectedCategory }) {
   // state to manage the mobile hamburger menu open/close status
   const [isOpen, setIsOpen] = useState(false);
+  // state to manage the mobile theme selector open/close status
+  const [mobileThemeOpen, setMobileThemeOpen] = useState(false);
+  // state to manage the mobile category selector accordion open/close status
+  const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
 
-  // Helper function to handle navigation cleanly (smooth scroll to element ID)
+  // Helper function to handle navigation cleanly
   const handleNav = (pageName) => {
     setIsOpen(false); // Close mobile menu first
+    setMobileThemeOpen(false); // Close mobile theme menu too
+    setMobileCategoriesOpen(false); // Close mobile categories accordion too
 
     // If navigating to Admin Portal
     if (pageName === "admin") {
@@ -31,18 +37,6 @@ export default function Navbar({ activePage, setActivePage, selectedProductId, s
     // If currently on a product's details page, close it first to return to main scroll layout
     if (selectedProductId !== null) {
       setSelectedProductId(null);
-      // Wait a brief moment for the main page elements to render before scrolling
-      setTimeout(() => {
-        const element = document.getElementById(pageName);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-        }
-      }, 100);
-    } else {
-      const element = document.getElementById(pageName);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
     }
     setActivePage(pageName);
   };
@@ -83,20 +77,82 @@ export default function Navbar({ activePage, setActivePage, selectedProductId, s
           </div>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex space-x-10 items-center">
-            {navLinks.map((link) => (
+          <div className="hidden md:flex space-x-8 items-center font-sans">
+            <button
+              onClick={() => {
+                setSelectedCategory("All");
+                handleNav("home");
+              }}
+              className={`text-sm uppercase tracking-wider font-semibold py-1 transition-all duration-300 ease-out transform hover:scale-110 active:scale-95 hover-gold-underline cursor-pointer ${
+                activePage === "home"
+                  ? "text-gold-500 font-bold border-b border-gold-500 scale-110 drop-shadow-[0_2px_8px_rgba(184,134,11,0.5)]"
+                  : "text-charcoal-400 dark:text-charcoal-300 hover:text-charcoal-500 dark:hover:text-white hover:drop-shadow-[0_2px_5px_rgba(184,134,11,0.3)]"
+              }`}
+            >
+              Home
+            </button>
+            
+            <button
+              onClick={() => {
+                setSelectedCategory("All");
+                handleNav("collection");
+              }}
+              className={`text-sm uppercase tracking-wider font-semibold py-1 transition-all duration-300 ease-out transform hover:scale-110 active:scale-95 hover-gold-underline cursor-pointer ${
+                activePage === "collection"
+                  ? "text-gold-500 font-bold border-b border-gold-500 scale-110 drop-shadow-[0_2px_8px_rgba(184,134,11,0.5)]"
+                  : "text-charcoal-400 dark:text-charcoal-300 hover:text-charcoal-500 dark:hover:text-white hover:drop-shadow-[0_2px_5px_rgba(184,134,11,0.3)]"
+              }`}
+            >
+              Collection
+            </button>
+
+            {/* Categories Dropdown Link */}
+            <div className="relative group/categories flex items-center">
               <button
-                key={link.id}
-                onClick={() => handleNav(link.id)}
-                className={`text-sm uppercase tracking-wider font-semibold font-sans py-1 transition-all duration-300 ease-out transform hover:scale-110 active:scale-95 hover-gold-underline cursor-pointer ${
-                  activePage === link.id
-                    ? "text-gold-500 font-bold border-b border-gold-500 scale-110 drop-shadow-[0_2px_8px_rgba(184,134,11,0.5)]" // Selected: bold, scaled up, and gold glow drop shadow
-                    : "text-charcoal-400 dark:text-charcoal-300 hover:text-charcoal-500 dark:hover:text-white hover:drop-shadow-[0_2px_5px_rgba(184,134,11,0.3)]"
-                }`}
+                className="text-sm uppercase tracking-wider font-semibold py-1 transition-all duration-300 ease-out transform hover:scale-110 active:scale-95 hover-gold-underline cursor-pointer text-charcoal-400 dark:text-charcoal-300 hover:text-charcoal-500 dark:hover:text-white flex items-center space-x-1"
               >
-                {link.label}
+                <span>Categories</span>
+                <span className="text-[10px] opacity-70">▼</span>
               </button>
-            ))}
+              
+              {/* Dropdown Menu */}
+              <div className="absolute left-0 top-full mt-1.5 w-40 bg-white dark:bg-charcoal-800 border border-charcoal-100 dark:border-charcoal-600 rounded-sm shadow-xl py-1.5 opacity-0 invisible group-hover/categories:opacity-100 group-hover/categories:visible transition-all duration-300 z-50">
+                {["Shirts", "Tracks", "Shorts", "Pants", "T-Shirts", "Slippers"].map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setSelectedCategory(cat);
+                      handleNav("collection");
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-xs font-semibold text-charcoal-400 dark:text-charcoal-200 hover:bg-charcoal-50 dark:hover:bg-charcoal-700 hover:text-gold-500 transition-colors cursor-pointer"
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={() => handleNav("about")}
+              className={`text-sm uppercase tracking-wider font-semibold py-1 transition-all duration-300 ease-out transform hover:scale-110 active:scale-95 hover-gold-underline cursor-pointer ${
+                activePage === "about"
+                  ? "text-gold-500 font-bold border-b border-gold-500 scale-110 drop-shadow-[0_2px_8px_rgba(184,134,11,0.5)]"
+                  : "text-charcoal-400 dark:text-charcoal-300 hover:text-charcoal-500 dark:hover:text-white hover:drop-shadow-[0_2px_5px_rgba(184,134,11,0.3)]"
+              }`}
+            >
+              About
+            </button>
+
+            <button
+              onClick={() => handleNav("contact")}
+              className={`text-sm uppercase tracking-wider font-semibold py-1 transition-all duration-300 ease-out transform hover:scale-110 active:scale-95 hover-gold-underline cursor-pointer ${
+                activePage === "contact"
+                  ? "text-gold-500 font-bold border-b border-gold-500 scale-110 drop-shadow-[0_2px_8px_rgba(184,134,11,0.5)]"
+                  : "text-charcoal-400 dark:text-charcoal-300 hover:text-charcoal-500 dark:hover:text-white hover:drop-shadow-[0_2px_5px_rgba(184,134,11,0.3)]"
+              }`}
+            >
+              Contact
+            </button>
             
             {/* Theme selector dropdown */}
             <div className="relative group/theme flex items-center">
@@ -120,10 +176,8 @@ export default function Navbar({ activePage, setActivePage, selectedProductId, s
               <div className="absolute right-0 top-full mt-1.5 w-44 bg-white dark:bg-charcoal-800 border border-charcoal-100 dark:border-charcoal-600 rounded-sm shadow-xl py-1.5 opacity-0 invisible group-hover/theme:opacity-100 group-hover/theme:visible transition-all duration-300 z-50">
                 {[
                   { id: 'light', name: 'Light Gold', dot: 'bg-gold-50 border-gold-400' },
-                  { id: 'dark', name: 'Charcoal Gold', dot: 'bg-charcoal-700 border-gold-400' },
-                  { id: 'emerald', name: 'Emerald Gold', dot: 'bg-emerald-800 border-emerald-400' },
-                  { id: 'navy', name: 'Navy Platinum', dot: 'bg-blue-950 border-blue-400' },
-                  { id: 'royal', name: 'Royal Rose', dot: 'bg-rose-950 border-rose-450' }
+                  { id: 'navy', name: 'Blue', dot: 'bg-blue-950 border-blue-400' },
+                  { id: 'classic', name: 'Classic Theme', dot: 'bg-slate-700 border-slate-400' }
                 ].map((t) => (
                   <button
                     key={t.id}
@@ -152,30 +206,61 @@ export default function Navbar({ activePage, setActivePage, selectedProductId, s
 
           {/* Mobile Menu Button - Hamburger Icon */}
           <div className="md:hidden flex items-center space-x-3">
-            {/* Mobile Horizontal Theme selector */}
-            <div className="flex items-center space-x-1.5 border border-charcoal-100 dark:border-charcoal-600 rounded-full px-2 py-1 bg-charcoal-50/50 dark:bg-charcoal-800/40">
-              {[
-                { id: 'light', dot: 'bg-gold-50 border-gold-400' },
-                { id: 'dark', dot: 'bg-charcoal-500 border-gold-400' },
-                { id: 'emerald', dot: 'bg-emerald-700 border-emerald-450' },
-                { id: 'navy', dot: 'bg-blue-900 border-blue-450' },
-                { id: 'royal', dot: 'bg-rose-950 border-rose-450' }
-              ].map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setTheme(t.id)}
-                  className={`w-5.5 h-5.5 rounded-full border transition-all duration-200 active:scale-90 flex items-center justify-center ${
-                    theme === t.id ? "scale-110 border-gold-500 shadow-sm" : "border-transparent opacity-60"
-                  }`}
-                  aria-label={`Switch to ${t.id} theme`}
-                >
-                  <span className={`block w-3.5 h-3.5 rounded-full border ${t.dot}`} />
-                </button>
-              ))}
+            {/* Mobile Theme selector toggle */}
+            <div className="relative flex items-center">
+              <button
+                onClick={() => {
+                  setMobileThemeOpen(!mobileThemeOpen);
+                  setIsOpen(false);
+                }}
+                className="p-2.5 rounded-full border border-charcoal-100 dark:border-charcoal-600 text-charcoal-450 dark:text-gold-300 hover:text-gold-500 hover:border-gold-400 transition-colors shadow-sm cursor-pointer flex items-center justify-center bg-charcoal-50/50 dark:bg-charcoal-800/40 active:scale-95"
+                aria-label="Select theme"
+              >
+                <span className={`w-3.5 h-3.5 rounded-full border ${
+                  theme === 'light' ? 'bg-gold-50 border-gold-400' :
+                  theme === 'navy' ? 'bg-blue-900 border-blue-450' :
+                  'bg-slate-700 border-slate-400'
+                }`} />
+              </button>
+              
+              {/* Mobile Theme Dropdown Menu */}
+              {mobileThemeOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setMobileThemeOpen(false)}
+                  />
+                  <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-charcoal-800 border border-charcoal-100 dark:border-charcoal-600 rounded-md shadow-xl py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-250">
+                    {[
+                      { id: 'light', name: 'Light Gold', dot: 'bg-gold-50 border-gold-400' },
+                      { id: 'navy', name: 'Blue', dot: 'bg-blue-950 border-blue-450' },
+                      { id: 'classic', name: 'Classic Theme', dot: 'bg-slate-700 border-slate-400' }
+                    ].map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() => {
+                          setTheme(t.id);
+                          setMobileThemeOpen(false);
+                        }}
+                        className={`w-full text-left px-3.5 py-2.5 text-xs font-semibold flex items-center space-x-2.5 hover:bg-charcoal-50 dark:hover:bg-charcoal-700 transition-colors cursor-pointer ${
+                          theme === t.id ? "text-gold-500 font-bold bg-gold-50/20" : "text-charcoal-400 dark:text-charcoal-200"
+                        }`}
+                      >
+                        <span className={`w-3 h-3 rounded-full border ${t.dot}`} />
+                        <span>{t.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
 
             <button
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={() => {
+                setIsOpen(!isOpen);
+                setMobileThemeOpen(false);
+                setMobileCategoriesOpen(false);
+              }}
               type="button"
               className="inline-flex items-center justify-center p-2 rounded-md text-charcoal-400 dark:text-charcoal-300 hover:text-gold-500 focus:outline-none transition-colors"
               aria-expanded="false"
@@ -201,19 +286,83 @@ export default function Navbar({ activePage, setActivePage, selectedProductId, s
       {isOpen && (
         <div className="md:hidden bg-white dark:bg-charcoal-800 border-b border-charcoal-100 dark:border-charcoal-600 transition-all duration-300">
           <div className="px-4 pt-3 pb-6 space-y-3 shadow-inner">
-            {navLinks.map((link) => (
+            <button
+              onClick={() => {
+                setSelectedCategory("All");
+                handleNav("home");
+              }}
+              className={`block w-full text-left px-4 py-2.5 rounded-md text-sm uppercase tracking-wider font-semibold transition-all duration-300 transform active:scale-95 cursor-pointer ${
+                activePage === "home"
+                  ? "bg-gold-50 dark:bg-gold-900/20 text-gold-500 dark:text-gold-300 border-l-4 border-gold-500 font-bold shadow-[inset_4px_0_0_rgba(184,134,11,0.2),_0_2px_8px_rgba(184,134,11,0.15)]"
+                  : "text-charcoal-400 dark:text-charcoal-300 hover:bg-charcoal-50 dark:hover:bg-charcoal-700/50 hover:text-charcoal-500 dark:hover:text-white"
+              }`}
+            >
+              Home
+            </button>
+            
+            <button
+              onClick={() => {
+                setSelectedCategory("All");
+                handleNav("collection");
+              }}
+              className={`block w-full text-left px-4 py-2.5 rounded-md text-sm uppercase tracking-wider font-semibold transition-all duration-300 transform active:scale-95 cursor-pointer ${
+                activePage === "collection"
+                  ? "bg-gold-50 dark:bg-gold-900/20 text-gold-500 dark:text-gold-300 border-l-4 border-gold-500 font-bold shadow-[inset_4px_0_0_rgba(184,134,11,0.2),_0_2px_8px_rgba(184,134,11,0.15)]"
+                  : "text-charcoal-400 dark:text-charcoal-300 hover:bg-charcoal-50 dark:hover:bg-charcoal-700/50 hover:text-charcoal-500 dark:hover:text-white"
+              }`}
+            >
+              Collection
+            </button>
+
+            {/* Mobile Categories Accordion */}
+            <div className="space-y-1">
               <button
-                key={link.id}
-                onClick={() => handleNav(link.id)}
-                className={`block w-full text-left px-4 py-3 rounded-md text-sm uppercase tracking-wider font-semibold transition-all duration-300 transform active:scale-95 cursor-pointer ${
-                  activePage === link.id
-                    ? "bg-gold-50 dark:bg-gold-900/20 text-gold-500 dark:text-gold-300 border-l-4 border-gold-500 font-bold shadow-[inset_4px_0_0_rgba(184,134,11,0.2),_0_2px_8px_rgba(184,134,11,0.15)]"
-                    : "text-charcoal-400 dark:text-charcoal-300 hover:bg-charcoal-50 dark:hover:bg-charcoal-700/50 hover:text-charcoal-500 dark:hover:text-white"
-                }`}
+                onClick={() => setMobileCategoriesOpen(!mobileCategoriesOpen)}
+                className="w-full text-left px-4 py-2.5 rounded-md text-sm uppercase tracking-wider font-semibold text-charcoal-400 dark:text-charcoal-300 hover:bg-charcoal-50 dark:hover:bg-charcoal-700/50 hover:text-charcoal-500 dark:hover:text-white flex justify-between items-center"
               >
-                {link.label}
+                <span>Categories</span>
+                <span className="text-xs">{mobileCategoriesOpen ? "▲" : "▼"}</span>
               </button>
-            ))}
+              
+              {mobileCategoriesOpen && (
+                <div className="pl-6 space-y-1 py-1 bg-charcoal-50/20 dark:bg-charcoal-800/10 rounded-md">
+                  {["Shirts", "Tracks", "Shorts", "Pants", "T-Shirts", "Slippers"].map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        setSelectedCategory(cat);
+                        handleNav("collection");
+                      }}
+                      className="block w-full text-left px-4 py-2 text-xs uppercase tracking-wider font-semibold text-charcoal-400 dark:text-charcoal-350 hover:text-gold-500"
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => handleNav("about")}
+              className={`block w-full text-left px-4 py-2.5 rounded-md text-sm uppercase tracking-wider font-semibold transition-all duration-300 transform active:scale-95 cursor-pointer ${
+                activePage === "about"
+                  ? "bg-gold-50 dark:bg-gold-900/20 text-gold-500 dark:text-gold-300 border-l-4 border-gold-500 font-bold shadow-[inset_4px_0_0_rgba(184,134,11,0.2),_0_2px_8px_rgba(184,134,11,0.15)]"
+                  : "text-charcoal-400 dark:text-charcoal-300 hover:bg-charcoal-50 dark:hover:bg-charcoal-700/50 hover:text-charcoal-500 dark:hover:text-white"
+              }`}
+            >
+              About
+            </button>
+
+            <button
+              onClick={() => handleNav("contact")}
+              className={`block w-full text-left px-4 py-2.5 rounded-md text-sm uppercase tracking-wider font-semibold transition-all duration-300 transform active:scale-95 cursor-pointer ${
+                activePage === "contact"
+                  ? "bg-gold-50 dark:bg-gold-900/20 text-gold-500 dark:text-gold-300 border-l-4 border-gold-500 font-bold shadow-[inset_4px_0_0_rgba(184,134,11,0.2),_0_2px_8px_rgba(184,134,11,0.15)]"
+                  : "text-charcoal-400 dark:text-charcoal-300 hover:bg-charcoal-50 dark:hover:bg-charcoal-700/50 hover:text-charcoal-500 dark:hover:text-white"
+              }`}
+            >
+              Contact
+            </button>
             
             {/* Mobile CTA */}
             <div className="pt-2 px-4">

@@ -1,4 +1,3 @@
-import React, { useRef } from "react";
 import CloudinaryImage from "./CloudinaryImage";
 
 /**
@@ -6,12 +5,9 @@ import CloudinaryImage from "./CloudinaryImage";
  * 
  * Props:
  * - product: Object containing product details (id, name, price, originalPrice, sizes, image, tag)
- * - onQuickView: Callback function to trigger Quick View popup modal (on hover-held / touch-held)
+ * - onSelect: Callback function to view a specific product's details page
  */
-export default function ProductCard({ product, onSelectProduct, onQuickView, onMouseLeaveCard }) {
-  const hoverTimerRef = useRef(null);
-  const touchTimerRef = useRef(null);
-  const isTouchLongPress = useRef(false);
+export default function ProductCard({ product, onSelect }) {
 
   // Format prices to standard Indian Rupees (INR) format
   const formatPrice = (num) => {
@@ -22,95 +18,19 @@ export default function ProductCard({ product, onSelectProduct, onQuickView, onM
     }).format(num);
   };
 
-  // Open details in the same tab
+  // Open details in a new tab (short press/click)
   const handleNormalClick = () => {
-    if (onSelectProduct) {
-      onSelectProduct(product.id);
+    if (onSelect) {
+      onSelect(product.id);
+    } else {
+      window.open(`?product=${product.id}`, "_blank");
     }
-  };
-
-  // Hover handlers for Laptop/Desktop
-  const handleMouseEnter = () => {
-    // Clear any previous timer
-    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-    
-    hoverTimerRef.current = setTimeout(() => {
-      onQuickView(product);
-    }, 650); // Kept hover threshold
-  };
-
-  const handleMouseLeave = () => {
-    if (hoverTimerRef.current) {
-      clearTimeout(hoverTimerRef.current);
-    }
-    if (onMouseLeaveCard) {
-      onMouseLeaveCard();
-    }
-  };
-
-  // Touch handlers for Mobile/Tablet
-  const handleTouchStart = () => {
-    isTouchLongPress.current = false;
-    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
-
-    touchTimerRef.current = setTimeout(() => {
-      isTouchLongPress.current = true;
-      if (navigator.vibrate) {
-        navigator.vibrate(50); // Small tactile feedback
-      }
-      onQuickView(product);
-    }, 650); // Touch-hold threshold
-  };
-
-  const handleTouchEnd = (e) => {
-    if (touchTimerRef.current) {
-      clearTimeout(touchTimerRef.current);
-    }
-    
-    // Prevent simulated mouse click on touch devices
-    e.preventDefault();
-
-    // If it wasn't a long press, treat as normal tap (open in new tab)
-    if (!isTouchLongPress.current) {
-      handleNormalClick();
-    }
-    isTouchLongPress.current = false;
-  };
-
-  const handleTouchMove = () => {
-    // Cancel the long-press if the user is scrolling the page
-    if (touchTimerRef.current) {
-      clearTimeout(touchTimerRef.current);
-    }
-  };
-
-  const handleTouchCancel = () => {
-    if (touchTimerRef.current) {
-      clearTimeout(touchTimerRef.current);
-    }
-  };
-
-  const handleContextMenu = (e) => {
-    // Prevent the default browser context menu when touch-holding on mobile
-    e.preventDefault();
   };
 
   return (
     <div 
-      onClick={(e) => {
-        // Handle desktop clicks (e.detail > 0)
-        if (e.detail > 0) {
-          handleNormalClick();
-        }
-      }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onTouchMove={handleTouchMove}
-      onTouchCancel={handleTouchCancel}
-      onContextMenu={handleContextMenu}
-      className="group cursor-pointer bg-white dark:bg-charcoal-800 flex flex-col h-full border border-charcoal-100 dark:border-charcoal-700/80 rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.02)] hover:border-gold-400 dark:hover:border-gold-500 hover:shadow-[0_8px_30px_rgba(184,134,11,0.08)] dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-500 relative"
+      onClick={handleNormalClick}
+      className="group cursor-pointer bg-white dark:bg-charcoal-800 flex flex-col h-full border border-charcoal-100 dark:border-charcoal-700/80 rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.02)] hover:border-gold-400 dark:hover:border-gold-500 hover:shadow-[0_8px_30px_rgba(184,134,11,0.08)] dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.2)] hover:-translate-y-1.5 hover:scale-[1.02] transition-all duration-300 ease-out relative"
     >
       {/* Product Tag Badge */}
       {product.tag && (

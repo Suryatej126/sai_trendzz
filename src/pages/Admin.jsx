@@ -14,18 +14,18 @@ import React, { useState, useMemo, useEffect } from "react";
  * - lookbook: Current lookbook content state
  * - onUpdateLookbook: Function to save lookbook changes
  */
-export default function Admin({ 
-  products, 
-  adminPasscode, 
-  onUpdatePasscode, 
-  onAddProduct, 
-  onUpdateProduct, 
-  onDeleteProduct, 
+export default function Admin({
+  products,
+  adminPasscode,
+  onUpdatePasscode,
+  onAddProduct,
+  onUpdateProduct,
+  onDeleteProduct,
   setActivePage,
   lookbook,
   onUpdateLookbook
 }) {
-  
+
   // --- AUTHENTICATION STATES ---
   const [passcode, setPasscode] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -40,7 +40,7 @@ export default function Admin({
 
   // --- CRUD & FORM STATES ---
   const [editingProduct, setEditingProduct] = useState(null);
-  
+
   // Individual form input states
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -54,7 +54,7 @@ export default function Admin({
   const [tag, setTag] = useState("");
   const [featured, setFeatured] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState(["M", "L", "XL"]);
-  
+
   // Search state inside the admin catalog table list
   const [adminSearch, setAdminSearch] = useState("");
 
@@ -80,7 +80,7 @@ export default function Admin({
     try {
       const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dtrkppnvt";
       const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "ml_default";
-      
+
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", uploadPreset);
@@ -110,9 +110,9 @@ export default function Admin({
 
   // All sizes options for selection checklist
   const allSizesList = ["S", "M", "L", "XL", "XXL", "30", "32", "34", "36", "UK 6", "UK 7", "UK 8", "UK 9", "UK 10", "UK 11"];
-  
+
   // Available standard categories list
-  const defaultCategoriesList = ["Shirts", "T-Shirts", "Jackets", "Trousers", "Suits & Blazers", "Sweaters", "Footwear"];
+  const defaultCategoriesList = ["Shirts", "Tracks", "Shorts", "Pants", "T-Shirts", "Slippers"];
 
   // --- LOOKBOOK EDIT STATES ---
   const [lbHeading, setLbHeading] = useState(lookbook ? lookbook.heading : "");
@@ -177,7 +177,7 @@ export default function Admin({
     // Update passcode globally
     onUpdatePasscode(newPasscode);
     setPasscodeSuccess("Passcode updated successfully!");
-    
+
     // Clear inputs
     setCurrentPasscode("");
     setNewPasscode("");
@@ -238,7 +238,7 @@ export default function Admin({
     setName(product.name);
     setPrice(product.price);
     setOriginalPrice(product.originalPrice || "");
-    
+
     if (defaultCategoriesList.includes(product.category)) {
       setCategory(product.category);
       setCustomCategory("");
@@ -246,7 +246,7 @@ export default function Admin({
       setCategory("Custom");
       setCustomCategory(product.category);
     }
-    
+
     setImage(product.image);
     setImage2(product.image2 || "");
     setImage3(product.image3 || "");
@@ -333,7 +333,7 @@ export default function Admin({
               Access Restricted
             </p>
           </div>
-          
+
           {authError && (
             <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/55 text-red-700 dark:text-red-300 text-xs rounded-sm text-center">
               {authError}
@@ -379,7 +379,7 @@ export default function Admin({
   return (
     <div className="bg-charcoal-50 dark:bg-charcoal-800 min-h-screen py-6 md:py-10 font-sans transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Dashboard Header Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-charcoal-200 dark:border-charcoal-600 pb-6 mb-8 gap-4 bg-white dark:bg-charcoal-700 p-4 sm:p-6 border border-charcoal-100 dark:border-charcoal-600 rounded-sm shadow-sm">
           <div>
@@ -390,7 +390,7 @@ export default function Admin({
               Store Control Panel
             </p>
           </div>
-          
+
           <div className="flex space-x-3 self-end sm:self-auto">
             <button
               onClick={() => {
@@ -421,7 +421,7 @@ export default function Admin({
 
         {/* Dashboard Stats Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-          
+
           <div className="bg-white dark:bg-charcoal-700 p-6 border border-charcoal-100 dark:border-charcoal-600 rounded-sm shadow-sm flex items-center space-x-4">
             <span className="text-3xl p-3 bg-gold-50 dark:bg-gold-900/20 text-gold-500 rounded-sm">📦</span>
             <div>
@@ -450,10 +450,10 @@ export default function Admin({
 
         {/* Main Panel - Form & Catalog Table split */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* Left Block: Forms Column (Product form + Password settings form) (Spans 5 Columns) */}
           <div className="lg:col-span-5 space-y-8">
-            
+
             {/* 1. Add/Edit Product Form */}
             <div className="bg-white dark:bg-charcoal-700 p-6 border border-charcoal-100 dark:border-charcoal-600 rounded-sm shadow-sm space-y-6">
               <div className="border-b border-charcoal-100 dark:border-charcoal-600 pb-3 flex justify-between items-center">
@@ -471,7 +471,7 @@ export default function Admin({
               </div>
 
               <form onSubmit={handleFormSubmit} className="space-y-4">
-                
+
                 <div className="flex flex-col space-y-1">
                   <label className="text-[10px] uppercase tracking-wider text-charcoal-400 font-bold">
                     Product Name <span className="text-red-500">*</span>
@@ -532,20 +532,20 @@ export default function Admin({
                       <option value="Custom">Custom...</option>
                     </select>
                   </div>
-                  
+
                   {category === "Custom" && (
                     <div className="flex flex-col space-y-1">
                       <label className="text-[10px] uppercase tracking-wider text-charcoal-400 font-bold">
                         Enter Custom Category <span className="text-red-500">*</span>
                       </label>
-                        <input
-                          type="text"
-                          required
-                          value={customCategory}
-                          onChange={(e) => setCustomCategory(e.target.value)}
-                          placeholder="e.g. Shoes"
-                          className="bg-white dark:bg-charcoal-600 border border-charcoal-100 dark:border-charcoal-500 text-charcoal-500 dark:text-white text-xs px-3 py-2 rounded-sm focus:outline-none focus:border-gold-500 dark:focus:border-gold-400"
-                        />
+                      <input
+                        type="text"
+                        required
+                        value={customCategory}
+                        onChange={(e) => setCustomCategory(e.target.value)}
+                        placeholder="e.g. Shoes"
+                        className="bg-white dark:bg-charcoal-600 border border-charcoal-100 dark:border-charcoal-500 text-charcoal-500 dark:text-white text-xs px-3 py-2 rounded-sm focus:outline-none focus:border-gold-500 dark:focus:border-gold-400"
+                      />
                     </div>
                   )}
                 </div>
@@ -655,10 +655,9 @@ export default function Admin({
                           key={size}
                           type="button"
                           onClick={() => handleSizeToggle(size)}
-                            className={`text-xs px-2.5 py-1.5 border rounded-sm transition-all duration-150 ${
-                              isChecked
-                                ? "bg-charcoal-500 border-charcoal-500 dark:bg-gold-500 dark:border-gold-500 text-white font-bold"
-                                : "bg-white dark:bg-charcoal-600 border-charcoal-100 dark:border-charcoal-500 text-charcoal-400 dark:text-charcoal-300 hover:border-gold-300 dark:hover:border-gold-400"
+                          className={`text-xs px-2.5 py-1.5 border rounded-sm transition-all duration-150 ${isChecked
+                              ? "bg-charcoal-500 border-charcoal-500 dark:bg-gold-500 dark:border-gold-500 text-white font-bold"
+                              : "bg-white dark:bg-charcoal-600 border-charcoal-100 dark:border-charcoal-500 text-charcoal-400 dark:text-charcoal-300 hover:border-gold-300 dark:hover:border-gold-400"
                             }`}
                         >
                           {size}
@@ -877,12 +876,12 @@ export default function Admin({
 
           {/* Right Block: Catalog Table listing (Spans 7 Columns) */}
           <div className="lg:col-span-7 bg-white dark:bg-charcoal-700 p-6 border border-charcoal-100 dark:border-charcoal-600 rounded-sm shadow-sm space-y-6">
-            
+
             <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-charcoal-100 dark:border-charcoal-600 pb-3 gap-3">
               <h2 className="text-lg font-display font-bold text-charcoal-500 dark:text-white">
                 Catalog Listing
               </h2>
-              
+
               <div className="relative w-full sm:max-w-xs">
                 <input
                   type="text"
@@ -919,7 +918,7 @@ export default function Admin({
                             />
                           </div>
                         </td>
-                        
+
                         <td className="py-4 px-4">
                           <p className="font-semibold text-charcoal-500 dark:text-white line-clamp-1">{product.name}</p>
                           <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
@@ -931,7 +930,7 @@ export default function Admin({
                             </span>
                           </div>
                         </td>
-                        
+
                         <td className="py-4 text-right hidden sm:table-cell">
                           <p className="font-bold">{formatPrice(product.price)}</p>
                           {product.originalPrice && (

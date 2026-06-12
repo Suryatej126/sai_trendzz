@@ -12,17 +12,13 @@ import logoImg from "../assets/image.png";
  * - onSelectProduct: Callback function to view a specific product details
  * - onQuickView: Callback function to open Quick View modal
  */
-export default function Home({ products, setActivePage, onSelectProduct, lookbook, onQuickView, onMouseLeaveCard }) {
+export default function Home({ products, setActivePage, onSelectProduct, lookbook, onQuickView }) {
   
   // Filter products to only display the featured ones (featured: true)
   const featuredProducts = products.filter(product => product.featured).slice(0, 4);
 
-  // Scroll smoothly down to the collection section ID element
+  // Scroll smoothly down to the collection section
   const handleShopNow = () => {
-    const element = document.getElementById("collection");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
     setActivePage("collection");
   };
 
@@ -96,9 +92,7 @@ export default function Home({ products, setActivePage, onSelectProduct, lookboo
             <ProductCard 
               key={product.id} 
               product={product} 
-              onSelectProduct={onSelectProduct}
-              onQuickView={onQuickView} 
-              onMouseLeaveCard={onMouseLeaveCard}
+              onSelect={onSelectProduct} 
             />
           ))}
         </div>

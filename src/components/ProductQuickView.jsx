@@ -8,10 +8,9 @@ import CloudinaryImage from "./CloudinaryImage";
  * - product: Object containing active product data
  * - onClose: Callback to close the modal overlay
  */
-export default function ProductQuickView({ product, onClose, onSelectProduct, onMouseEnterModal, onMouseLeaveModal }) {
+export default function ProductQuickView({ product, onClose }) {
   const [selectedSize, setSelectedSize] = useState("");
   const [activeImg, setActiveImg] = useState("");
-  const [isClosing, setIsClosing] = useState(false);
 
   // Set default values when product opens
   useEffect(() => {
@@ -22,23 +21,6 @@ export default function ProductQuickView({ product, onClose, onSelectProduct, on
       }
     }
   }, [product]);
-
-  // Hook custom event listener for hover bridge close triggers from App.jsx
-  useEffect(() => {
-    const handleTriggerClose = () => {
-      setIsClosing(true);
-    };
-
-    const overlayEl = document.getElementById("quick-view-modal-overlay");
-    if (overlayEl) {
-      overlayEl.addEventListener("trigger-close", handleTriggerClose);
-    }
-    return () => {
-      if (overlayEl) {
-        overlayEl.removeEventListener("trigger-close", handleTriggerClose);
-      }
-    };
-  }, []);
 
   if (!product) return null;
 
@@ -71,44 +53,24 @@ Please confirm availability and dispatch timeline. Thank you!`;
     window.open(whatsappUrl, "_blank");
   };
 
-  const handleClose = () => {
-    setIsClosing(true);
-  };
-
-  const handleAnimationEnd = () => {
-    if (isClosing) {
-      onClose();
-    }
-  };
-
-  // Open full details page in the same tab
+  // Open full details page in a new tab
   const handleViewFullDetails = () => {
-    if (onSelectProduct) {
-      onSelectProduct(product.id);
-    }
-    handleClose();
+    window.open(`?product=${product.id}`, "_blank");
+    onClose();
   };
 
   return (
     <div 
-      id="quick-view-modal-overlay"
-      className={`fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 p-4 backdrop-blur-md ${
-        isClosing ? "animate-fadeOut" : "animate-fadeIn"
-      }`}
-      onClick={handleClose}
-      onAnimationEnd={handleAnimationEnd}
+      className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-[fadeIn_0.3s_ease-out]"
+      onClick={onClose}
     >
       <div 
-        className={`bg-white dark:bg-charcoal-700 text-charcoal-500 dark:text-white rounded-xl shadow-2xl relative max-w-3xl w-full max-h-[90vh] overflow-y-auto p-5 md:p-8 border border-charcoal-100 dark:border-charcoal-600 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 cursor-default ${
-          isClosing ? "animate-scaleDown" : "animate-scaleUp"
-        }`}
+        className="bg-white dark:bg-charcoal-700 text-charcoal-500 dark:text-white rounded-xl shadow-2xl relative max-w-3xl w-full max-h-[90vh] overflow-y-auto p-5 md:p-8 animate-[scaleUp_0.3s_cubic-bezier(0.34,1.56,0.64,1)] border border-charcoal-100 dark:border-charcoal-600 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 cursor-default"
         onClick={(e) => e.stopPropagation()}
-        onMouseEnter={onMouseEnterModal}
-        onMouseLeave={onMouseLeaveModal}
       >
         {/* Close Button */}
         <button
-          onClick={handleClose}
+          onClick={onClose}
           className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center bg-charcoal-50 dark:bg-charcoal-800 hover:bg-gold-500 hover:text-white transition-colors cursor-pointer text-sm font-bold border border-charcoal-100 dark:border-charcoal-600 z-10"
           aria-label="Close Preview"
         >
@@ -258,6 +220,17 @@ Please confirm availability and dispatch timeline. Thank you!`;
         </div>
       </div>
 
+      {/* Animation Styles Inline for fade/scale */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleUp {
+          from { transform: scale(0.92); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }

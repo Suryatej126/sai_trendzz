@@ -30,6 +30,15 @@ import { collection, doc, getDocs, getDoc, setDoc, deleteDoc } from "firebase/fi
  * and single-page scroll behavior with an active Scroll Spy.
  */
 function App() {
+  // Ref to save scroll position when opening a product
+  const scrollPositionRef = useRef(0);
+
+  // Ref to temporarily disable Scroll Spy updates during programmatic scroll transitions
+  const isProgrammaticScrollRef = useRef(false);
+
+  // State for selected category filter (shared with Navbar and Collection page)
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
   // State for Website Intro Landing Animation (Double blink logo intro)
   const [showIntro, setShowIntro] = useState(true);
   const [introFadeOut, setIntroFadeOut] = useState(false);
@@ -106,10 +115,6 @@ function App() {
   // Ref to prevent history sync loops when back button is pressed
   const isPopStateRef = useRef(false);
 
-  // Refs for tracking Quick View hover bridge timers and states
-  const quickViewTimeoutRef = useRef(null);
-  const isHoveringModalRef = useRef(false);
-
   // History sync hook 1: Handle popstate events (e.g. back button clicks)
   useEffect(() => {
     const handlePopState = (event) => {
@@ -154,11 +159,25 @@ function App() {
     
     // Set initial state
     if (!window.history.state) {
-      window.history.replaceState({ 
-        page: pageQuery || "home", 
-        productId: productQuery ? Number(productQuery) : null,
-        deepLinked: true
-      }, "");
+      if (productQuery) {
+        // Seed the history stack with the storefront first, then push the product details state.
+        // This ensures the back button takes the user back to the storefront instead of exiting the site.
+        window.history.replaceState({ 
+          page: "home", 
+          productId: null
+        }, "", "/");
+        window.history.pushState({ 
+          page: "home", 
+          productId: Number(productQuery),
+          deepLinked: false
+        }, "", `?product=${productQuery}`);
+      } else {
+        window.history.replaceState({ 
+          page: pageQuery || "home", 
+          productId: null,
+          deepLinked: true
+        }, "");
+      }
     }
 
     return () => {
@@ -199,18 +218,62 @@ function App() {
     }
   }, [currentPage, selectedProductId]);
 
-  // History sync hook 3: Smooth scroll-back effect when exiting product details page
-  useEffect(() => {
+  // Centralized page navigation helper that triggers smooth scrolling
+  const navigateToPage = (pageName, categoryName = null) => {
+    // Save current scroll position before navigating away from storefront
     if (selectedProductId === null && currentPage !== "admin") {
-      // Small timeout to allow component rendering before scrolling
-      setTimeout(() => {
-        const element = document.getElementById(currentPage);
+      scrollPositionRef.current = window.scrollY;
+    }
+
+    const needsDelay = (selectedProductId !== null || currentPage === "admin");
+
+    // 1. Set the category filter if specified
+    if (categoryName !== null) {
+      setSelectedCategory(categoryName);
+    }
+
+    // 2. Set programmatic scroll flag to ignore Scroll Spy updates during transition
+    isProgrammaticScrollRef.current = true;
+
+    // 3. Clear active details view if open
+    if (selectedProductId !== null) {
+      setSelectedProductId(null);
+    }
+
+    // 4. Set the current page state
+    setCurrentPage(pageName);
+
+    // 5. Scroll to the element
+    const delay = needsDelay ? 150 : 0;
+    setTimeout(() => {
+      if (pageName !== "admin") {
+        const element = document.getElementById(pageName);
         if (element) {
           element.scrollIntoView({ behavior: "smooth" });
         }
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Re-enable Scroll Spy updates after the smooth scroll animation finishes
+      setTimeout(() => {
+        isProgrammaticScrollRef.current = false;
+      }, 800);
+    }, delay);
+  };
+
+  // History sync hook 3: Scroll restoration when back/forward button is pressed
+  useEffect(() => {
+    if (isPopStateRef.current) {
+      setTimeout(() => {
+        if (selectedProductId === null && currentPage !== "admin") {
+          // Restore scroll position instantly
+          window.scrollTo({ top: scrollPositionRef.current, behavior: "instant" });
+        }
       }, 100);
     }
-  }, [selectedProductId]);
+  }, [selectedProductId, currentPage]);
+
 
   // Fetch initial data from Firestore or fallback to LocalStorage
   useEffect(() => {
@@ -319,18 +382,14 @@ function App() {
     localStorage.setItem("sai_trends_theme", theme);
     
     // Remove all previous theme classes
-    const themeClasses = ["dark", "emerald", "navy", "royal"];
+    const themeClasses = ["dark", "emerald", "navy", "royal", "classic"];
     document.documentElement.classList.remove(...themeClasses);
     
     // Apply appropriate class tags to support theme styling
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else if (theme === "emerald") {
-      document.documentElement.classList.add("dark", "emerald");
-    } else if (theme === "navy") {
+    if (theme === "navy") {
       document.documentElement.classList.add("dark", "navy");
-    } else if (theme === "royal") {
-      document.documentElement.classList.add("dark", "royal");
+    } else if (theme === "classic") {
+      document.documentElement.classList.add("dark", "classic");
     }
   }, [theme]);
 
@@ -348,6 +407,10 @@ function App() {
 
     const sections = ["home", "collection", "about", "contact"];
     const observerCallback = (entries) => {
+      // Bypasses updates when scrolling programmatically
+      if (isProgrammaticScrollRef.current) {
+        return;
+      }
       entries.forEach((entry) => {
         // If a section occupies the viewport near the center, set it as the current active page
         if (entry.isIntersecting) {
@@ -375,7 +438,8 @@ function App() {
     return () => {
       observer.disconnect();
     };
-  }, [selectedProductId, currentPage, productsList]);
+  }, [selectedProductId, productsList]);
+
 
   // --- CRUD STATE HANDLERS ---
 
@@ -473,6 +537,9 @@ function App() {
 
   // Helper to view a specific product's details (with randomized loader delay of 0.8s)
   const handleSelectProduct = (id) => {
+    // Save current scroll position before setting selectedProductId
+    scrollPositionRef.current = window.scrollY;
+
     const showLoader = Math.random() < 0.6; // 60% chance of showing the loader
     console.log("[Sai Trends Debug] handleSelectProduct clicked. ID:", id, "showLoader:", showLoader);
     if (showLoader) {
@@ -482,59 +549,12 @@ function App() {
         console.log("[Sai Trends Debug] Timeout completed. Setting selectedProductId to:", id);
         setSelectedProductId(id);
         setIsNavigating(false);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: "instant" });
       }, 800); // 800ms loading delay (0.5s - 1s)
     } else {
       console.log("[Sai Trends Debug] Transitioning immediately. Setting selectedProductId to:", id);
       setSelectedProductId(id);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
-
-  // Open Quick View Modal with a clean hover state reset
-  const handleOpenQuickView = (product) => {
-    if (quickViewTimeoutRef.current) {
-      clearTimeout(quickViewTimeoutRef.current);
-    }
-    isHoveringModalRef.current = false;
-    setQuickViewProduct(product);
-  };
-
-  // Triggers exit transition when user hovers off the card (with 250ms hover bridge)
-  const handleCardMouseLeave = () => {
-    if (quickViewTimeoutRef.current) {
-      clearTimeout(quickViewTimeoutRef.current);
-    }
-
-    quickViewTimeoutRef.current = setTimeout(() => {
-      if (!isHoveringModalRef.current) {
-        // Find modal overlay and dispatch event to trigger closing transition
-        const overlayEl = document.getElementById("quick-view-modal-overlay");
-        if (overlayEl) {
-          overlayEl.dispatchEvent(new CustomEvent("trigger-close"));
-        } else {
-          setQuickViewProduct(null);
-        }
-      }
-    }, 250);
-  };
-
-  // Cancel any pending close timers when hover transitions successfully to modal
-  const handleModalMouseEnter = () => {
-    isHoveringModalRef.current = true;
-    if (quickViewTimeoutRef.current) {
-      clearTimeout(quickViewTimeoutRef.current);
-    }
-  };
-
-  // When hover leaves the modal, trigger exit transitions
-  const handleModalMouseLeave = () => {
-    isHoveringModalRef.current = false;
-    const overlayEl = document.getElementById("quick-view-modal-overlay");
-    if (overlayEl) {
-      overlayEl.dispatchEvent(new CustomEvent("trigger-close"));
-    } else {
-      setQuickViewProduct(null);
+      window.scrollTo({ top: 0, behavior: "instant" });
     }
   };
 
@@ -546,7 +566,7 @@ function App() {
         <ProductDetails
           productId={selectedProductId}
           products={productsList}
-          setActivePage={setCurrentPage}
+          setActivePage={navigateToPage}
           setSelectedProductId={setSelectedProductId}
         />
       );
@@ -562,7 +582,7 @@ function App() {
           onAddProduct={handleAddProduct}
           onUpdateProduct={handleUpdateProduct}
           onDeleteProduct={handleDeleteProduct}
-          setActivePage={setCurrentPage}
+          setActivePage={navigateToPage}
           lookbook={lookbook}
           onUpdateLookbook={handleUpdateLookbook}
         />
@@ -576,11 +596,10 @@ function App() {
         <section id="home">
           <Home
             products={productsList}
-            setActivePage={setCurrentPage}
+            setActivePage={navigateToPage}
             onSelectProduct={handleSelectProduct}
             lookbook={lookbook}
-            onQuickView={handleOpenQuickView}
-            onMouseLeaveCard={handleCardMouseLeave}
+            onQuickView={setQuickViewProduct}
           />
         </section>
 
@@ -589,15 +608,16 @@ function App() {
           <Collection
             products={productsList}
             onSelectProduct={handleSelectProduct}
-            onQuickView={handleOpenQuickView}
-            onMouseLeaveCard={handleCardMouseLeave}
+            onQuickView={setQuickViewProduct}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
           />
         </section>
 
         {/* Section 3: About */}
         <section id="about">
           <About
-            setActivePage={setCurrentPage}
+            setActivePage={navigateToPage}
           />
         </section>
 
@@ -614,11 +634,12 @@ function App() {
       {/* Header Navigation */}
       <Navbar
         activePage={currentPage}
-        setActivePage={setCurrentPage}
+        setActivePage={navigateToPage}
         selectedProductId={selectedProductId}
         setSelectedProductId={setSelectedProductId}
         theme={theme}
         setTheme={setTheme}
+        setSelectedCategory={setSelectedCategory}
       />
 
       {/* Main Page Content */}
@@ -628,7 +649,7 @@ function App() {
 
       {/* Footer */}
       <Footer
-        setActivePage={setCurrentPage}
+        setActivePage={navigateToPage}
         setSelectedProductId={setSelectedProductId}
       />
 
@@ -640,9 +661,6 @@ function App() {
         <ProductQuickView
           product={quickViewProduct}
           onClose={() => setQuickViewProduct(null)}
-          onSelectProduct={handleSelectProduct}
-          onMouseEnterModal={handleModalMouseEnter}
-          onMouseLeaveModal={handleModalMouseLeave}
         />
       )}
 
