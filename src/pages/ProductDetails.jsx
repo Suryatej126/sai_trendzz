@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CloudinaryImage from "../components/CloudinaryImage";
+import OrderFormModal from "../components/OrderFormModal";
 
 /**
  * ProductDetails Page Component
@@ -18,6 +19,9 @@ export default function ProductDetails({ productId, products, setActivePage, set
   const [selectedSize, setSelectedSize] = useState("");
   // State to track active gallery image
   const [activeImg, setActiveImg] = useState("");
+  // State to control customer information modal visibility
+  const [showOrderModal, setShowOrderModal] = useState(false);
+
 
   // Set the default size and image when the product changes
   useEffect(() => {
@@ -62,16 +66,31 @@ export default function ProductDetails({ productId, products, setActivePage, set
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
-  // Generate WhatsApp Order Link with a pre-filled custom message
+  // Intercept order click to open input modal
   const handleWhatsAppOrder = () => {
+    setShowOrderModal(true);
+  };
+
+  // Execute actual order redirection (with optional user details)
+  const executeWhatsAppOrder = (userData) => {
+    setShowOrderModal(false);
     const phoneNumber = "919346305355"; // Replace with store's actual WhatsApp business number
     const itemLink = `${window.location.origin}?product=${product.id}`;
+
+    let detailsText = "";
+    if (userData) {
+      detailsText = `
+*Customer Name:* ${userData.name || "N/A"}
+*Mobile:* ${userData.mobile || "N/A"}
+*Address:* ${userData.address || "N/A"}
+*Pin Code:* ${userData.pinCode || "N/A"}`;
+    }
 
     // Constructing a structured text message
     const message = `Hello Sai Trends! I would like to order:
 *Product Name:* ${product.name}
 *Size:* ${selectedSize}
-*Price:* ${formatPrice(product.price)}
+*Price:* ${formatPrice(product.price)}${detailsText}
 *Link:* ${itemLink}
 
 Please confirm availability and dispatch timeline. Thank you!`;
@@ -276,7 +295,13 @@ Please confirm availability and dispatch timeline. Thank you!`;
           </div>
         </div>
 
-      </div>
+      {/* Customer Delivery Details Modal */}
+      <OrderFormModal
+        isOpen={showOrderModal}
+        onClose={() => setShowOrderModal(false)}
+        onSubmit={executeWhatsAppOrder}
+      />
     </div>
+  </div>
   );
 }

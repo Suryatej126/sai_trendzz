@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import CloudinaryImage from "./CloudinaryImage";
+import OrderFormModal from "./OrderFormModal";
 
 /**
  * ProductQuickView Modal Component
@@ -11,6 +12,8 @@ import CloudinaryImage from "./CloudinaryImage";
 export default function ProductQuickView({ product, onClose }) {
   const [selectedSize, setSelectedSize] = useState("");
   const [activeImg, setActiveImg] = useState("");
+  const [showOrderModal, setShowOrderModal] = useState(false);
+
 
   // Set default values when product opens
   useEffect(() => {
@@ -38,14 +41,30 @@ export default function ProductQuickView({ product, onClose }) {
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
-  // Trigger WhatsApp order redirection
+  // Trigger WhatsApp order redirection modal
   const handleWhatsAppOrder = () => {
+    setShowOrderModal(true);
+  };
+
+  // Execute actual WhatsApp order checkout (with optional user details)
+  const executeWhatsAppOrder = (userData) => {
+    setShowOrderModal(false);
     const phoneNumber = "919346305355";
     const itemLink = `${window.location.origin}?product=${product.id}`;
+
+    let detailsText = "";
+    if (userData) {
+      detailsText = `
+*Customer Name:* ${userData.name || "N/A"}
+*Mobile:* ${userData.mobile || "N/A"}
+*Address:* ${userData.address || "N/A"}
+*Pin Code:* ${userData.pinCode || "N/A"}`;
+    }
+
     const message = `Hello Sai Trends! I would like to order:
 *Product Name:* ${product.name}
 *Size:* ${selectedSize}
-*Price:* ${formatPrice(product.price)}
+*Price:* ${formatPrice(product.price)}${detailsText}
 *Link:* ${itemLink}
 
 Please confirm availability and dispatch timeline. Thank you!`;
@@ -233,6 +252,12 @@ Please confirm availability and dispatch timeline. Thank you!`;
           to { transform: scale(1); opacity: 1; }
         }
       `}</style>
+      {/* Customer Delivery Details Modal */}
+      <OrderFormModal
+        isOpen={showOrderModal}
+        onClose={() => setShowOrderModal(false)}
+        onSubmit={executeWhatsAppOrder}
+      />
     </div>
   );
 }
