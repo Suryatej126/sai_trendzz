@@ -10,8 +10,9 @@ import logoImg from "../assets/image.png";
  * - products: Dynamic list of products passed from App state
  * - setActivePage: Callback function to switch active tab page
  * - onSelectProduct: Callback function to view a specific product details
+ * - onQuickView: Callback function to open Quick View modal
  */
-export default function Home({ products, setActivePage, onSelectProduct, lookbook }) {
+export default function Home({ products, setActivePage, onSelectProduct, lookbook, onQuickView }) {
   
   // Filter products to only display the featured ones (featured: true)
   const featuredProducts = products.filter(product => product.featured).slice(0, 4);
@@ -95,7 +96,7 @@ export default function Home({ products, setActivePage, onSelectProduct, lookboo
             <ProductCard 
               key={product.id} 
               product={product} 
-              onSelectProduct={onSelectProduct} 
+              onQuickView={onQuickView} 
             />
           ))}
         </div>

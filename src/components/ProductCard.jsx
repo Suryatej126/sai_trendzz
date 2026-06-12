@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import CloudinaryImage from "./CloudinaryImage";
 
 /**
@@ -6,11 +6,14 @@ import CloudinaryImage from "./CloudinaryImage";
  * 
  * Props:
  * - product: Object containing product details (id, name, price, originalPrice, sizes, image, tag)
- * - onSelectProduct: Callback function to open this product's details page
+ * - onQuickView: Callback function to trigger Quick View popup modal (on hover-held / touch-held)
  */
-export default function ProductCard({ product, onSelectProduct }) {
-  
-  // Format prices to standard Indian Rupees (INR) format (e.g. ₹1,499)
+export default function ProductCard({ product, onQuickView }) {
+  const hoverTimerRef = useRef(null);
+  const touchTimerRef = useRef(null);
+  const isTouchLongPress = useRef(false);
+
+  // Format prices to standard Indian Rupees (INR) format
   const formatPrice = (num) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -19,19 +22,99 @@ export default function ProductCard({ product, onSelectProduct }) {
     }).format(num);
   };
 
+  // Open details in a new tab (short press/click)
+  const handleNormalClick = () => {
+    window.open(`?product=${product.id}`, "_blank");
+  };
+
+  // Hover handlers for Laptop/Desktop
+  const handleMouseEnter = () => {
+    // Clear any previous timer
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    
+    hoverTimerRef.current = setTimeout(() => {
+      onQuickView(product);
+    }, 650); // Kept hover threshold
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+    }
+  };
+
+  // Touch handlers for Mobile/Tablet
+  const handleTouchStart = () => {
+    isTouchLongPress.current = false;
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+
+    touchTimerRef.current = setTimeout(() => {
+      isTouchLongPress.current = true;
+      if (navigator.vibrate) {
+        navigator.vibrate(50); // Small tactile feedback
+      }
+      onQuickView(product);
+    }, 650); // Touch-hold threshold
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchTimerRef.current) {
+      clearTimeout(touchTimerRef.current);
+    }
+    
+    // Prevent simulated mouse click on touch devices
+    e.preventDefault();
+
+    // If it wasn't a long press, treat as normal tap (open in new tab)
+    if (!isTouchLongPress.current) {
+      handleNormalClick();
+    }
+    isTouchLongPress.current = false;
+  };
+
+  const handleTouchMove = () => {
+    // Cancel the long-press if the user is scrolling the page
+    if (touchTimerRef.current) {
+      clearTimeout(touchTimerRef.current);
+    }
+  };
+
+  const handleTouchCancel = () => {
+    if (touchTimerRef.current) {
+      clearTimeout(touchTimerRef.current);
+    }
+  };
+
+  const handleContextMenu = (e) => {
+    // Prevent the default browser context menu when touch-holding on mobile
+    e.preventDefault();
+  };
+
   return (
     <div 
-      onClick={() => onSelectProduct(product.id)}
+      onClick={(e) => {
+        // Handle desktop clicks (e.detail > 0)
+        if (e.detail > 0) {
+          handleNormalClick();
+        }
+      }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onTouchMove={handleTouchMove}
+      onTouchCancel={handleTouchCancel}
+      onContextMenu={handleContextMenu}
       className="group cursor-pointer bg-white dark:bg-charcoal-800 flex flex-col h-full border border-charcoal-100 dark:border-charcoal-700/80 rounded-xl overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.02)] hover:border-gold-400 dark:hover:border-gold-500 hover:shadow-[0_8px_30px_rgba(184,134,11,0.08)] dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.2)] transition-all duration-500 relative"
     >
-      {/* Product Tag Badge (e.g., Best Seller, Signature Piece) */}
+      {/* Product Tag Badge */}
       {product.tag && (
         <span className="absolute top-3 left-3 z-10 bg-charcoal-600/90 dark:bg-charcoal-900/90 text-white text-[8px] uppercase tracking-widest font-bold py-1 px-2.5 rounded-full border border-gold-400/30 backdrop-blur-sm shadow-sm">
           {product.tag}
         </span>
       )}
 
-      {/* Product Image Wrapper with smooth crop and hover-zoom */}
+      {/* Product Image Wrapper */}
       <div className="aspect-[3/4] w-full overflow-hidden bg-charcoal-100 dark:bg-charcoal-900 relative">
         <CloudinaryImage
           src={product.image}
@@ -40,26 +123,21 @@ export default function ProductCard({ product, onSelectProduct }) {
           width={400}
           height={533}
         />
-        {/* Overlay subtle dark layer on hover for premium styling */}
         <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
 
-      {/* Product Information Details */}
+      {/* Product Information */}
       <div className="p-3.5 flex-grow flex flex-col justify-between">
         <div className="space-y-0.5">
-          {/* Category */}
           <p className="text-[9px] uppercase tracking-widest text-gold-600 font-bold">
             {product.category}
           </p>
-          
-          {/* Product Name */}
           <h3 className="text-xs sm:text-sm font-sans font-medium text-charcoal-500 dark:text-charcoal-200 group-hover:text-gold-500 dark:group-hover:text-gold-400 transition-colors line-clamp-1">
             {product.name}
           </h3>
         </div>
 
         <div className="mt-2.5 pt-2 border-t border-charcoal-50/80 dark:border-charcoal-700/80">
-          {/* Price display with discount comparison */}
           <div className="flex items-baseline space-x-1.5">
             <span className="text-sm sm:text-base font-sans font-bold text-charcoal-500 dark:text-white">
               {formatPrice(product.price)}
@@ -71,7 +149,6 @@ export default function ProductCard({ product, onSelectProduct }) {
             )}
           </div>
 
-          {/* Available Sizes List */}
           <div className="mt-2 flex items-center justify-between">
             <div className="flex flex-wrap gap-0.5">
               {product.sizes.map((size) => (
@@ -83,8 +160,6 @@ export default function ProductCard({ product, onSelectProduct }) {
                 </span>
               ))}
             </div>
-            
-            {/* Elegant visual indicator symbol */}
             <span className="text-xs text-charcoal-300 dark:text-charcoal-500 group-hover:text-gold-500 dark:group-hover:text-gold-400 group-hover:translate-x-1 transition-all duration-300">
               ➔
             </span>

@@ -178,6 +178,49 @@
   animation: intro-subtitle-fade-in-out 2.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
+/* -------------------------------------------------------------
+   Custom Premium Multi-Theme Variable Overrides
+   ------------------------------------------------------------- */
+
+.emerald {
+  --color-charcoal-700: #041a12; /* Deep forest/emerald black background */
+  --color-charcoal-800: #08261b; /* Secondary card background */
+  --color-charcoal-600: #0d3b2a; /* Borders and dividers */
+  --color-charcoal-500: #e6f7f0; /* Crisp contrasting text */
+  --color-charcoal-100: #0b3324;
+  --color-gold-500: #dca54c;     /* Soft gold brand accent */
+  --color-gold-600: #b58032;
+  --color-gold-300: #ebd09b;
+  --color-gold-100: #d1b88a;
+  color-scheme: dark;
+}
+
+.navy {
+  --color-charcoal-700: #060d1a; /* Midnight deep navy background */
+  --color-charcoal-800: #0b192e; /* Navy blue card background */
+  --color-charcoal-600: #102a43; /* Navy border accent */
+  --color-charcoal-500: #e0f2fe; /* Ice-blue/white text contrast */
+  --color-charcoal-100: #0e233a;
+  --color-gold-500: #4fc3f7;     /* Ice-blue/platinum brand accent */
+  --color-gold-600: #0288d1;
+  --color-gold-300: #81d4fa;
+  --color-gold-100: #b3e5fc;
+  color-scheme: dark;
+}
+
+.royal {
+  --color-charcoal-700: #1a050f; /* Deep wine/royal burgundy background */
+  --color-charcoal-800: #2d0b1d; /* Plum card background */
+  --color-charcoal-600: #3d142b; /* Divider accents */
+  --color-charcoal-500: #fff0f5; /* Lavender white text */
+  --color-charcoal-100: #2d0b1a;
+  --color-gold-500: #f4a2b1;     /* Soft rose-gold brand accent */
+  --color-gold-600: #e07a8c;
+  --color-gold-300: #f8c2cb;
+  --color-gold-100: #ffd1d9;
+  color-scheme: dark;
+}
+
 
 
 

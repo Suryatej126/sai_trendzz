@@ -98,22 +98,46 @@ export default function Navbar({ activePage, setActivePage, selectedProductId, s
               </button>
             ))}
             
-            {/* Theme switcher toggle button */}
-            <button
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              className="p-2 rounded-full border border-charcoal-100 dark:border-charcoal-600 text-charcoal-400 dark:text-gold-300 hover:text-gold-500 hover:border-gold-400 transition-colors shadow-sm cursor-pointer"
-              aria-label="Toggle theme"
-            >
-              {theme === 'light' ? (
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-              ) : (
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                </svg>
-              )}
-            </button>
+            {/* Theme selector dropdown */}
+            <div className="relative group/theme flex items-center">
+              <button
+                className="p-2 rounded-full border border-charcoal-100 dark:border-charcoal-600 text-charcoal-400 dark:text-gold-300 hover:text-gold-500 hover:border-gold-400 transition-colors shadow-sm cursor-pointer flex items-center justify-center"
+                aria-label="Select theme"
+              >
+                {/* Visual indicator of active theme icon / shape */}
+                {theme === 'light' ? (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                )}
+              </button>
+              
+              {/* Dropdown Menu */}
+              <div className="absolute right-0 top-full mt-1.5 w-44 bg-white dark:bg-charcoal-800 border border-charcoal-100 dark:border-charcoal-600 rounded-sm shadow-xl py-1.5 opacity-0 invisible group-hover/theme:opacity-100 group-hover/theme:visible transition-all duration-300 z-50">
+                {[
+                  { id: 'light', name: 'Light Gold', dot: 'bg-gold-50 border-gold-400' },
+                  { id: 'dark', name: 'Charcoal Gold', dot: 'bg-charcoal-700 border-gold-400' },
+                  { id: 'emerald', name: 'Emerald Gold', dot: 'bg-emerald-800 border-emerald-400' },
+                  { id: 'navy', name: 'Navy Platinum', dot: 'bg-blue-950 border-blue-400' },
+                  { id: 'royal', name: 'Royal Rose', dot: 'bg-rose-950 border-rose-450' }
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => setTheme(t.id)}
+                    className={`w-full text-left px-3.5 py-2 text-xs font-semibold flex items-center space-x-2.5 hover:bg-charcoal-50 dark:hover:bg-charcoal-700 transition-colors cursor-pointer ${
+                      theme === t.id ? "text-gold-500 font-bold bg-gold-50/20" : "text-charcoal-400 dark:text-charcoal-200"
+                    }`}
+                  >
+                    <span className={`w-3 h-3 rounded-full border ${t.dot}`} />
+                    <span>{t.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
             
             {/* Call to action: Quick WhatsApp trigger in header */}
             <a
@@ -128,22 +152,27 @@ export default function Navbar({ activePage, setActivePage, selectedProductId, s
 
           {/* Mobile Menu Button - Hamburger Icon */}
           <div className="md:hidden flex items-center space-x-3">
-            {/* Mobile Theme switcher toggle button */}
-            <button
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              className="p-1.5 rounded-full border border-charcoal-100 dark:border-charcoal-600 text-charcoal-400 dark:text-gold-300 hover:text-gold-500 hover:border-gold-400 transition-colors cursor-pointer"
-              aria-label="Toggle theme"
-            >
-              {theme === 'light' ? (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                </svg>
-              )}
-            </button>
+            {/* Mobile Horizontal Theme selector */}
+            <div className="flex items-center space-x-1.5 border border-charcoal-100 dark:border-charcoal-600 rounded-full px-2 py-1 bg-charcoal-50/50 dark:bg-charcoal-800/40">
+              {[
+                { id: 'light', dot: 'bg-gold-50 border-gold-400' },
+                { id: 'dark', dot: 'bg-charcoal-500 border-gold-400' },
+                { id: 'emerald', dot: 'bg-emerald-700 border-emerald-450' },
+                { id: 'navy', dot: 'bg-blue-900 border-blue-450' },
+                { id: 'royal', dot: 'bg-rose-950 border-rose-450' }
+              ].map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTheme(t.id)}
+                  className={`w-5.5 h-5.5 rounded-full border transition-all duration-200 active:scale-90 flex items-center justify-center ${
+                    theme === t.id ? "scale-110 border-gold-500 shadow-sm" : "border-transparent opacity-60"
+                  }`}
+                  aria-label={`Switch to ${t.id} theme`}
+                >
+                  <span className={`block w-3.5 h-3.5 rounded-full border ${t.dot}`} />
+                </button>
+              ))}
+            </div>
 
             <button
               onClick={() => setIsOpen(!isOpen)}

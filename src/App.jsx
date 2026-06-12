@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import FloatingContact from "./components/FloatingContact";
+import ProductQuickView from "./components/ProductQuickView";
 
 // Import our standalone pages
 import Home from "./pages/Home";
@@ -67,6 +68,9 @@ function App() {
 
   // 7. State for transition loader (when opening product details)
   const [isNavigating, setIsNavigating] = useState(false);
+
+  // 8. State for product Quick View popup modal
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   // Lock scroll during intro animation
   useEffect(() => {
@@ -309,10 +313,20 @@ function App() {
 
   useEffect(() => {
     localStorage.setItem("sai_trends_theme", theme);
+    
+    // Remove all previous theme classes
+    const themeClasses = ["dark", "emerald", "navy", "royal"];
+    document.documentElement.classList.remove(...themeClasses);
+    
+    // Apply appropriate class tags to support theme styling
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
+    } else if (theme === "emerald") {
+      document.documentElement.classList.add("dark", "emerald");
+    } else if (theme === "navy") {
+      document.documentElement.classList.add("dark", "navy");
+    } else if (theme === "royal") {
+      document.documentElement.classList.add("dark", "royal");
     }
   }, [theme]);
 
@@ -514,6 +528,7 @@ function App() {
             setActivePage={setCurrentPage}
             onSelectProduct={handleSelectProduct}
             lookbook={lookbook}
+            onQuickView={setQuickViewProduct}
           />
         </section>
 
@@ -522,6 +537,7 @@ function App() {
           <Collection
             products={productsList}
             onSelectProduct={handleSelectProduct}
+            onQuickView={setQuickViewProduct}
           />
         </section>
 
@@ -565,6 +581,14 @@ function App() {
 
       {/* Floating Action Button for Call & WhatsApp */}
       <FloatingContact />
+
+      {/* Product Quick View Modal */}
+      {quickViewProduct && (
+        <ProductQuickView
+          product={quickViewProduct}
+          onClose={() => setQuickViewProduct(null)}
+        />
+      )}
 
       {/* Full-Screen Page Transition Loader */}
       {isNavigating && (
