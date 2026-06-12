@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 // Import our shared navigation components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import FloatingContact from "./components/FloatingContact";
 
 // Import our standalone pages
 import Home from "./pages/Home";
@@ -561,6 +562,9 @@ function App() {
         setActivePage={setCurrentPage}
         setSelectedProductId={setSelectedProductId}
       />
+
+      {/* Floating Action Button for Call & WhatsApp */}
+      <FloatingContact />
 
       {/* Full-Screen Page Transition Loader */}
       {isNavigating && (

@@ -1,7 +1,7 @@
 import React from "react";
 import ProductCard from "../components/ProductCard";
 import CloudinaryImage from "../components/CloudinaryImage";
-import heroBg from "../assets/hero.png";
+import logoImg from "../assets/image.png";
 
 /**
  * Home Page Component
@@ -28,34 +28,38 @@ export default function Home({ products, setActivePage, onSelectProduct, lookboo
   return (
     <div className="bg-white dark:bg-charcoal-700 transition-colors duration-300">
       
-      {/* 1. Hero Section - Premium fashion image background with high-contrast text overlay */}
-      <section className="relative h-[45vh] min-h-[300px] md:h-[75vh] md:min-h-[500px] flex items-center justify-center bg-charcoal-700 overflow-hidden">
-        {/* Immersive background image with high opacity layer for dark contrast */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src={heroBg}
-            alt="Sai Trends Modern Men Fashion"
-            className="w-full h-full object-cover object-top opacity-60 scale-105 animate-[pulse_8s_infinite]"
-          />
-          {/* Linear gradient shadow bottom for seamless transition */}
-          <div className="absolute inset-0 bg-gradient-to-t from-charcoal-500/80 via-charcoal-500/20 to-black/35" />
+      {/* 1. Hero Section - Premium brand logo backdrop with elegant light/dark gradients */}
+      <section className="relative h-[45vh] min-h-[300px] md:h-[75vh] md:min-h-[500px] flex items-center justify-center bg-white dark:bg-charcoal-700 transition-colors duration-500 overflow-hidden">
+        {/* Elegant Background with a light/dark gradient and glowing brand logo emblem */}
+        <div className="absolute inset-0 z-0 flex items-center justify-center bg-gradient-to-br from-gold-50 via-white to-gold-100/40 dark:from-charcoal-800 dark:via-charcoal-700 dark:to-charcoal-900 transition-colors duration-500">
+          {/* Ambient Glow behind the logo */}
+          <div className="absolute w-[280px] h-[280px] md:w-[480px] md:h-[480px] bg-gold-400/20 dark:bg-gold-500/10 rounded-full blur-[60px] md:blur-[100px] animate-pulse pointer-events-none" />
+          
+          {/* Large styled background logo badge with soft glow and pulse animation */}
+          <div className="absolute w-[220px] h-[220px] md:w-[380px] md:h-[380px] rounded-full bg-white/40 dark:bg-charcoal-800/30 border border-gold-400/20 dark:border-gold-400/10 p-4 shadow-[0_0_50px_rgba(184,134,11,0.1)] dark:shadow-[0_0_60px_rgba(184,134,11,0.05)] opacity-[0.15] dark:opacity-[0.1] pointer-events-none select-none animate-[pulse_6s_ease-in-out_infinite] flex items-center justify-center">
+            <img
+              src={logoImg}
+              alt=""
+              className="w-full h-full object-contain filter grayscale dark:invert rounded-full mix-blend-multiply dark:mix-blend-screen"
+            />
+          </div>
         </div>
 
         {/* Hero Content Text Box */}
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto space-y-6">
-          <p className="text-xs sm:text-sm uppercase tracking-widest text-gold-300 font-bold">
+          <p className="text-xs sm:text-sm uppercase tracking-widest text-gold-600 dark:text-gold-300 font-bold">
             Elevate Your Style
           </p>
           
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-display font-bold tracking-widest text-white drop-shadow-md">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-display font-bold tracking-widest text-charcoal-500 dark:text-white drop-shadow-sm">
             SAI TRENDS
           </h1>
           
-          <p className="text-lg sm:text-xl md:text-2xl font-light italic text-gold-100/90 font-display">
+          <p className="text-lg sm:text-xl md:text-2xl font-light italic text-gold-800 dark:text-gold-100/90 font-display">
             Made for Modern Men
           </p>
           
-          <p className="text-sm sm:text-base text-charcoal-100 max-w-lg mx-auto font-light leading-relaxed">
+          <p className="text-sm sm:text-base text-charcoal-400 dark:text-charcoal-100 max-w-lg mx-auto font-light leading-relaxed">
             Discover a curated collection of premium men's clothing designed for style, ultimate comfort, and unmatched quality.
           </p>
 
